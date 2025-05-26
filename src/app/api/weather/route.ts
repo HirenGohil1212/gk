@@ -75,12 +75,15 @@ export async function GET(request: NextRequest) {
   }
 
   if (!apiKey) {
-    return NextResponse.json({ error: 'Weather API key is not configured' }, { status: 500 });
+    console.error("OPENWEATHERMAP_API_KEY is not set in environment variables.");
+    return NextResponse.json({ error: 'Weather API key is not configured on the server. Please check server logs.' }, { status: 500 });
   }
 
   try {
     // Using OpenWeatherMap 5 day / 3 hour forecast API (data/2.5/forecast)
     // This endpoint is generally available on free plans.
+    // Free tier for One Call API 3.0 typically includes 1-hourly forecasts for 48h and daily for 8 days.
+    // However, user reported issues, so switched to data/2.5/forecast which is more common for basic free keys.
     const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`;
     const geoUrl = `https://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lon}&limit=1&appid=${apiKey}`;
 
@@ -95,6 +98,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: `Failed to fetch weather data: ${errorData.message || forecastResponse.statusText}` }, { status: forecastResponse.status });
     }
      if (!geoResponse.ok) {
+      // Geo API is supplementary; log warning but don't fail the request if it errors
       console.warn("OpenWeatherMap Geo API error:", await geoResponse.text());
     }
 
@@ -134,11 +138,11 @@ export async function GET(request: NextRequest) {
       icon: getIcon(hour.weather[0]?.icon),
     }));
 
-    // Process data for daily forecasts
+    // Process data for daily forecasts from the 3-hourly data
     const dailyDataAggregator: { [key: string]: { temps: number[], highs: number[], lows: number[], dts: number[], weatherEntries: {icon: string, condition: string, dt: number}[]} } = {};
 
     (weatherApiData.list || []).forEach((item: any) => {
-        const dateStr = new Date(item.dt * 1000).toISOString().split('T')[0];
+        const dateStr = new Date(item.dt * 1000).toISOString().split('T')[0]; // Group by date string
         if (!dailyDataAggregator[dateStr]) {
             dailyDataAggregator[dateStr] = { temps: [], highs: [], lows: [], dts: [], weatherEntries: [] };
         }
@@ -160,23 +164,24 @@ export async function GET(request: NextRequest) {
         const high = Math.round(Math.max(...dayData.highs));
         const low = Math.round(Math.min(...dayData.lows));
         
-        // Find weather for midday (around 12:00-14:00) for a representative icon/condition
+        // Find weather for midday (around 12:00-15:00) for a representative icon/condition for the day
         let representativeWeather = dayData.weatherEntries.find(w => {
             const hour = new Date(w.dt * 1000).getHours();
-            return hour >= 11 && hour <= 14;
+            return hour >= 11 && hour <= 14; // Target midday hours
         });
+        // Fallback: if no midday entry, try to find the entry with highest temperature or just the first one
         if (!representativeWeather && dayData.weatherEntries.length > 0) {
-             // Fallback to the first weather entry of the day if no midday entry
+            // Simple fallback to the first available weather entry for the day
             representativeWeather = dayData.weatherEntries[0];
         }
 
         return {
-            dt: new Date(dateStr + "T12:00:00Z").getTime() / 1000, // Consistent DT for the day
+            dt: new Date(dateStr + "T12:00:00Z").getTime() / 1000, // Use midday for consistent DT for the day
             day: index === 0 && new Date(dateStr).toDateString() === new Date().toDateString() ? 'Today' : new Date(dateStr).toLocaleDateString([], { weekday: 'short' }),
             high: high,
             low: low,
             condition: representativeWeather?.condition || 'N/A',
-            icon: getIcon(representativeWeather?.icon || '03d'), // Default to cloud
+            icon: getIcon(representativeWeather?.icon || '03d'), // Default to a cloudy icon if none found
         };
     });
 
