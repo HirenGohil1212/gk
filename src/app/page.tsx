@@ -1,3 +1,5 @@
-export default function Home() {
-  return <></>;
+import { DashboardOverview } from "@/components/DashboardOverview";
+
+export default function DashboardPage() {
+  return <DashboardOverview />;
 }
