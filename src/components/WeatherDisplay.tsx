@@ -3,6 +3,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Cloud, CloudDrizzle, CloudFog, CloudLightning, CloudRain, CloudSnow, CloudSun, Sun, Thermometer, Umbrella, Wind } from "lucide-react";
 import Image from "next/image";
+import { cn } from "@/lib/utils"; // Added import
 
 // Mock data
 const weatherData = {
