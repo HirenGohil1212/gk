@@ -1,24 +1,53 @@
+
 "use client";
 
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, CloudSun, TrendingUp, Bug, Lightbulb, BookText } from "lucide-react";
+import { ArrowRight, CloudSun, TrendingUp, Bug, Lightbulb, BookText, BarChart3, FlaskConical, Loader2, AlertTriangle, MapPin, Sun, Moon, Cloudy, CloudDrizzle, CloudRain, CloudLightning, CloudSnow, CloudFog, Cloud } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import type { WeatherData as ApiWeatherData } from "@/app/api/weather/route"; // Assuming this type is exported
+import { useState, useEffect, useCallback } from "react";
+import { cn } from "@/lib/utils";
+
+
+// Helper function to map OpenWeatherMap icon codes to Lucide icons
+// (Copied from WeatherDisplay.tsx for use here)
+const getLucideIcon = (iconCode: string): React.ElementType => {
+  if (!iconCode) return Cloud;
+  const mainPart = iconCode.substring(0, 2);
+  switch (mainPart) {
+    case '01': return iconCode.endsWith('n') ? Moon : Sun;
+    case '02': return iconCode.endsWith('n') ? CloudMoon : CloudSun;
+    case '03': return Cloud;
+    case '04': return Cloudy;
+    case '09': return CloudDrizzle;
+    case '10': return CloudRain;
+    case '11': return CloudLightning;
+    case '13': return CloudSnow;
+    case '50': return CloudFog;
+    default: return Cloud;
+  }
+};
+
 
 const QuickActionCard = ({ title, description, href, icon: Icon, image, imageHint }: { title: string; description: string; href: string; icon: React.ElementType; image?: string, imageHint?: string }) => (
-  <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
-    <CardHeader className="flex flex-row items-center justify-between pb-2">
-      <CardTitle className="text-lg font-semibold">{title}</CardTitle>
-      <Icon className="h-6 w-6 text-primary" />
+  <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col">
+    <CardHeader className="flex flex-row items-start justify-between pb-2 space-y-0">
+      <div className="space-y-1">
+        <CardTitle className="text-lg font-semibold">{title}</CardTitle>
+      </div>
+      <Icon className="h-6 w-6 text-primary flex-shrink-0" />
     </CardHeader>
-    <CardContent>
+    <CardContent className="flex-grow">
       {image && (
         <div className="mb-4 overflow-hidden rounded-md">
           <Image src={image} alt={title} width={600} height={200} className="object-cover aspect-[3/1]" data-ai-hint={imageHint} />
         </div>
       )}
       <p className="text-sm text-muted-foreground mb-4">{description}</p>
+    </CardContent>
+    <CardContent className="pt-0"> {/* Separate content for button to ensure it's at the bottom */}
       <Link href={href} passHref>
         <Button variant="outline" size="sm" className="w-full group">
           Go to {title} <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
@@ -28,13 +57,84 @@ const QuickActionCard = ({ title, description, href, icon: Icon, image, imageHin
   </Card>
 );
 
+type DashboardWeatherData = Pick<ApiWeatherData, 'current' | 'locationName'>;
+
 export function DashboardOverview() {
-  // Mock data
-  const weatherSummary = {
-    temp: "28°C",
-    condition: "Sunny with light breeze",
-    icon: CloudSun,
-  };
+  const [weatherData, setWeatherData] = useState<DashboardWeatherData | null>(null);
+  const [isWeatherLoading, setIsWeatherLoading] = useState(true);
+  const [weatherError, setWeatherError] = useState<string | null>(null);
+  const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [locationPermissionStatus, setLocationPermissionStatus] = useState<"prompt" | "granted" | "denied">("prompt");
+
+  const fetchDashboardWeather = useCallback(async (latitude: number, longitude: number) => {
+    setIsWeatherLoading(true);
+    setWeatherError(null);
+    try {
+      const response = await fetch(`/api/weather?lat=${latitude}&lon=${longitude}`);
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || `Failed to fetch weather: ${response.statusText}`);
+      }
+      setWeatherData(data);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "An unknown error occurred.";
+      setWeatherError(errorMessage);
+      setWeatherData(null);
+    } finally {
+      setIsWeatherLoading(false);
+    }
+  }, []);
+
+  const handleLocationRequest = useCallback(() => {
+    if (!navigator.geolocation) {
+      setWeatherError("Geolocation is not supported by your browser.");
+      setIsWeatherLoading(false);
+      setLocationPermissionStatus("denied");
+      return;
+    }
+    setIsWeatherLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        setLocation({ latitude, longitude });
+        setLocationPermissionStatus("granted");
+        fetchDashboardWeather(latitude, longitude);
+      },
+      () => {
+        setWeatherError("Location access denied. Enable to see local weather.");
+        setLocationPermissionStatus("denied");
+        setIsWeatherLoading(false);
+        setWeatherData(null);
+      }
+    );
+  }, [fetchDashboardWeather]);
+
+  useEffect(() => {
+    const checkPermissionAndFetch = async () => {
+      if (navigator.permissions && navigator.permissions.query) {
+        try {
+          const status = await navigator.permissions.query({ name: 'geolocation' });
+          setLocationPermissionStatus(status.state);
+          if (status.state === 'granted') {
+            handleLocationRequest();
+          } else {
+            setIsWeatherLoading(false); // Not granted, stop loading
+            if (status.state === 'denied') {
+              setWeatherError("Location access denied. Enable to see local weather.");
+            }
+          }
+        } catch (e) {
+          // Fallback for browsers that don't support permissions.query well
+          handleLocationRequest();
+        }
+      } else {
+        // Fallback for older browsers
+        handleLocationRequest();
+      }
+    };
+    checkPermissionAndFetch();
+  }, [handleLocationRequest]);
+  
 
   const marketAlert = {
     crop: "Maize",
@@ -46,6 +146,8 @@ export function DashboardOverview() {
     message: "High risk of Fall Armyworm reported in your region. Check crops regularly.",
     icon: Bug,
   };
+  
+  const WeatherSummaryIcon = weatherData?.current?.icon ? getLucideIcon(weatherData.current.icon) : CloudSun;
 
   return (
     <div className="space-y-6">
@@ -65,11 +167,36 @@ export function DashboardOverview() {
         <Card className="shadow-md">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Current Weather</CardTitle>
-            <weatherSummary.icon className="h-5 w-5 text-accent" />
+             <WeatherSummaryIcon className="h-5 w-5 text-accent" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{weatherSummary.temp}</div>
-            <p className="text-xs text-muted-foreground">{weatherSummary.condition}</p>
+            {isWeatherLoading && locationPermissionStatus !== 'denied' && (
+              <div className="flex items-center gap-2">
+                <Loader2 className="h-5 w-5 animate-spin" />
+                <p className="text-xs text-muted-foreground">Fetching weather...</p>
+              </div>
+            )}
+            {weatherError && (
+              <div className="flex items-center gap-2 text-destructive">
+                <AlertTriangle className="h-5 w-5" />
+                <p className="text-xs">{weatherError.length > 50 ? weatherError.substring(0,47) + "..." : weatherError}</p>
+              </div>
+            )}
+            {!isWeatherLoading && !weatherError && weatherData?.current && (
+              <>
+                <div className="text-2xl font-bold">{weatherData.current.temp}°C</div>
+                <p className="text-xs text-muted-foreground capitalize">{weatherData.current.condition}</p>
+                <p className="text-xs text-muted-foreground">{weatherData.locationName}</p>
+              </>
+            )}
+             {locationPermissionStatus === 'prompt' && !isWeatherLoading && !weatherData && (
+                <Button variant="link" size="sm" className="p-0 h-auto mt-1 text-primary" onClick={handleLocationRequest}>
+                    <MapPin className="mr-1 h-3 w-3" />Grant location access
+                </Button>
+            )}
+            {locationPermissionStatus === 'denied' && !isWeatherLoading && (
+                 <p className="text-xs text-muted-foreground">Location access needed for weather.</p>
+            )}
           </CardContent>
         </Card>
 
@@ -97,25 +224,56 @@ export function DashboardOverview() {
           </CardContent>
         </Card>
       </div>
-
-      <div className="grid gap-6 md:grid-cols-2">
-        <QuickActionCard
-          title="Smart Diagnosis"
-          description="Upload an image or describe an issue to get AI-powered crop diagnosis."
-          href="/diagnosis"
-          icon={Lightbulb}
-          image="https://placehold.co/600x200.png"
-          imageHint="diseased plant"
-        />
-        <QuickActionCard
-          title="Resource Directory"
-          description="Find local suppliers, services, and agricultural resources."
-          href="/resources"
-          icon={BookText}
-          image="https://placehold.co/600x200.png"
-          imageHint="farm supplies"
-        />
-      </div>
+      
+      <Card>
+        <CardHeader>
+            <CardTitle className="text-xl">Quick Actions</CardTitle>
+            <CardDescription>Access key features of AgriAssist directly.</CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <QuickActionCard
+              title="Smart Diagnosis"
+              description="Upload an image or describe an issue to get AI-powered crop diagnosis."
+              href="/diagnosis"
+              icon={Lightbulb}
+              image="https://placehold.co/600x200.png"
+              imageHint="diseased plant"
+            />
+            <QuickActionCard
+              title="Soil Analysis"
+              description="Upload soil reports for AI-driven insights and recommendations."
+              href="/soil-analysis"
+              icon={FlaskConical}
+              image="https://placehold.co/600x200.png"
+              imageHint="soil analysis test tube"
+            />
+            <QuickActionCard
+              title="Weather Insights"
+              description="Get detailed local weather forecasts and air quality information."
+              href="/weather"
+              icon={CloudSun}
+              image="https://placehold.co/600x200.png"
+              imageHint="weather forecast"
+            />
+            <QuickActionCard
+              title="Crop Pricing"
+              description="Track current market prices for various agricultural products."
+              href="/pricing"
+              icon={BarChart3}
+              image="https://placehold.co/600x200.png"
+              imageHint="market chart graph"
+            />
+            <QuickActionCard
+              title="Resource Directory"
+              description="Find local suppliers, services, and agricultural resources."
+              href="/resources"
+              icon={BookText}
+              image="https://placehold.co/600x200.png"
+              imageHint="farm supplies"
+            />
+        </CardContent>
+      </Card>
     </div>
   );
 }
+
