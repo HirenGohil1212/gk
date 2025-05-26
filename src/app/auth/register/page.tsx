@@ -1,5 +1,6 @@
 
-import { RegisterForm } from "@/components/auth/RegisterForm";
+// This page is temporarily stubbed out as authentication is disabled.
+// You may want to delete this file and its parent directory.
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 
@@ -8,17 +9,11 @@ export default function RegisterPage() {
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md shadow-xl">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold">Create an Account</CardTitle>
-          <CardDescription>Join AgriAssist and start farming smarter.</CardDescription>
+          <CardTitle className="text-2xl font-bold">Registration Disabled</CardTitle>
+          <CardDescription>Registration functionality is temporarily unavailable.</CardDescription>
         </CardHeader>
         <CardContent>
-          <RegisterForm />
-          <p className="mt-6 text-center text-sm text-muted-foreground">
-            Already have an account?{" "}
-            <Link href="/auth/login" className="font-medium text-primary hover:underline">
-              Log in
-            </Link>
-          </p>
+           <p className="text-center">Please return to the <Link href="/" className="text-primary hover:underline">Dashboard</Link>.</p>
         </CardContent>
       </Card>
     </div>

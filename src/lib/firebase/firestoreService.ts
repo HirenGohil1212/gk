@@ -1,13 +1,12 @@
 
-import { doc, setDoc, getDoc, serverTimestamp, type Timestamp } from "firebase/firestore";
-import { db } from "@/lib/firebaseConfig";
-import type { UserRole } from "@/lib/constants";
+import { type Timestamp } from "firebase/firestore";
+// import { db } from "@/lib/firebaseConfig"; // Firebase config might not be needed if auth is fully removed
+// import type { UserRole } from "@/lib/constants"; // UserRole removed
 
 export interface UserProfileData {
   email: string;
-  role: UserRole;
+  // role: UserRole; // UserRole removed
   displayName?: string;
-  // Add other profile fields as needed
 }
 
 export interface UserProfileDocument extends UserProfileData {
@@ -16,28 +15,14 @@ export interface UserProfileDocument extends UserProfileData {
 }
 
 export const createUserProfile = async (uid: string, data: UserProfileData): Promise<void> => {
-  const userProfileRef = doc(db, "users", uid);
-  return setDoc(userProfileRef, {
-    uid,
-    ...data,
-    createdAt: serverTimestamp(),
-  }, { merge: true }); // Use merge to avoid overwriting if doc somehow exists
+  console.warn("FirestoreService: createUserProfile called but auth is disabled.");
+  // In a real scenario where Firestore is still used for other things,
+  // you might keep the db import and actual Firestore logic.
+  // For now, this is a no-op.
+  return Promise.resolve();
 };
 
 export const getUserProfile = async (uid: string): Promise<UserProfileData | null> => {
-  const userProfileRef = doc(db, "users", uid);
-  const docSnap = await getDoc(userProfileRef);
-
-  if (docSnap.exists()) {
-    const data = docSnap.data();
-    // We only need to return UserProfileData, not the full document structure for context
-    return {
-      email: data.email,
-      role: data.role,
-      displayName: data.displayName,
-    };
-  } else {
-    console.log("No such user profile!");
-    return null;
-  }
+  console.warn("FirestoreService: getUserProfile called but auth is disabled.");
+  return Promise.resolve(null);
 };
