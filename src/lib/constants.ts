@@ -1,6 +1,6 @@
 
 import type { LucideIcon } from 'lucide-react';
-import { LayoutDashboard, Stethoscope, CloudSun, BarChart3, BookText, Leaf, FlaskConical, Users, ShieldCheck, Sprout, Languages } from 'lucide-react'; // Added Languages
+import { LayoutDashboard, Stethoscope, CloudSun, BarChart3, BookText, Leaf, FlaskConical, Users, ShieldCheck, Sprout } from 'lucide-react'; // Removed Languages
 
 export type NavItem = {
   href: string;
@@ -40,11 +40,7 @@ export const NAV_ITEMS: NavItem[] = [
     label: 'Crop Nutrient Guide',
     icon: Sprout,
   },
-  {
-    href: '/translator',
-    label: 'Translator',
-    icon: Languages,
-  },
+  // Removed Translator NavItem
   {
     href: '/resources',
     label: 'Resource Directory',
