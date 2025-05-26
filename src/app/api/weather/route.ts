@@ -137,7 +137,7 @@ export async function GET(request: NextRequest) {
       feelsLike: Math.round(weatherApiData.current.feels_like),
     };
 
-    const hourlyForecasts: HourlyForecast[] = weatherApiData.hourly.slice(0, 12).map((hour: any, index: number) => ({ // Take next 12 hours
+    const hourlyForecasts: HourlyForecast[] = (weatherApiData.hourly || []).slice(0, 12).map((hour: any, index: number) => ({ // Take next 12 hours
       dt: hour.dt,
       time: index === 0 ? 'Now' : new Date(hour.dt * 1000).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true }),
       temp: Math.round(hour.temp),
@@ -145,7 +145,7 @@ export async function GET(request: NextRequest) {
       icon: getIcon(hour.weather[0]?.icon),
     }));
 
-    const dailyForecasts: DailyForecast[] = weatherApiData.daily.slice(0, 7).map((day: any, index: number) => ({ // Take next 7 days
+    const dailyForecasts: DailyForecast[] = (weatherApiData.daily || []).slice(0, 7).map((day: any, index: number) => ({ // Take next 7 days
       dt: day.dt,
       day: index === 0 ? 'Today' : new Date(day.dt * 1000).toLocaleDateString([], { weekday: 'short' }),
       high: Math.round(day.temp.max),
