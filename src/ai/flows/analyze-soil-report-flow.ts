@@ -38,8 +38,8 @@ const HighValueCropOptionSchema = z.object({
 
 const AnalyzeSoilReportOutputSchema = z.object({
   soilAnalysisSummary: z.string().describe("A brief summary of the key findings from the soil report, including pH, N, P, K levels, and organic matter if available."),
-  suggestedCrops: z.array(SuggestedCropSchema).describe("A list of all crops suitable for the current soil conditions based on the report. This list should include various options if multiple crops are viable with minimal intervention."),
-  highValueCropOptions: z.array(HighValueCropOptionSchema).describe("A list of all high-value crop options that could be grown with appropriate soil management, along with their respective strategies. If multiple high-value crops are suitable, list them all."),
+  suggestedCrops: z.array(SuggestedCropSchema).describe("An exhaustive list of all crops suitable for the current soil conditions based on the report. This list should include various options if multiple crops are viable with minimal intervention. Be as comprehensive as possible."),
+  highValueCropOptions: z.array(HighValueCropOptionSchema).describe("An exhaustive list of all high-value crop options that could be grown with appropriate soil management, along with their respective strategies. If multiple high-value crops are suitable, list them all. Be as comprehensive as possible."),
 });
 export type AnalyzeSoilReportOutput = z.infer<typeof AnalyzeSoilReportOutputSchema>;
 
@@ -64,12 +64,12 @@ User's Additional Notes:
 Based on the provided soil test report and any user notes, please provide the following:
 1.  **Soil Analysis Summary**: Briefly summarize the key findings from the soil report. Focus on pH, macronutrients (N, P, K), and organic matter content if discernible from the report.
 2.  **Suggested Crops**:
-    *   Provide a list of ALL crops that are well-suited to the *current* soil conditions with minimal amendments.
+    *   Provide an exhaustive list of ALL crops that are well-suited to the *current* soil conditions with minimal amendments. Consider a wide variety of common and niche crops. If many crops are suitable, list as many as reasonably possible based on the report's detail.
     *   For each crop, explain your reasoning.
     *   For each crop, provide an estimated potential yield.
     *   For each crop, list any minimal soil amendments needed.
 3.  **High-Value Crop Options**:
-    *   Provide a list of ALL suggested high-value crops that could be profitably grown on this land *after* appropriate soil preparation and management.
+    *   Provide an exhaustive list of ALL suggested high-value crops that could be profitably grown on this land *after* appropriate soil preparation and management. If multiple high-value crops are viable, detail each one. Consider diverse options that could maximize profitability.
     *   For each high-value crop:
         *   Include a brief market analysis.
         *   Outline a detailed soil preparation plan (amendments, tilling, etc.).
@@ -78,6 +78,7 @@ Based on the provided soil test report and any user notes, please provide the fo
 
 Ensure your response strictly adheres to the JSON output format described by the output schema.
 If the soil report is unclear or lacks critical information for a specific field, state that the information was not available in the report for that field.
+Be as comprehensive as possible when listing suggested crops and high-value crop options.
 `,
 });
 
@@ -95,3 +96,4 @@ const analyzeSoilReportFlow = ai.defineFlow(
     return output;
   }
 );
+
