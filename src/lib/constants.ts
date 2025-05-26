@@ -1,6 +1,6 @@
 
 import type { LucideIcon } from 'lucide-react';
-import { LayoutDashboard, Stethoscope, CloudSun, BarChart3, BookText, Leaf, FlaskConical, Users, ShieldCheck } from 'lucide-react';
+import { LayoutDashboard, Stethoscope, CloudSun, BarChart3, BookText, Leaf, FlaskConical, Users, ShieldCheck, Sprout } from 'lucide-react';
 
 export type NavItem = {
   href: string;
@@ -34,6 +34,11 @@ export const NAV_ITEMS: NavItem[] = [
     href: '/pricing',
     label: 'Crop Pricing',
     icon: BarChart3,
+  },
+  {
+    href: '/crop-guide',
+    label: 'Crop Nutrient Guide',
+    icon: Sprout,
   },
   {
     href: '/resources',
@@ -75,3 +80,4 @@ export type UserProfile = {
   displayName?: string;
   createdAt: any; // Firestore Timestamp
 };
+
