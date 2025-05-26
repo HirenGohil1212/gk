@@ -1,46 +1,71 @@
+
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableCaption } from "@/components/ui/table";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowDown, ArrowUp, Minus, Search } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { ArrowDown, ArrowUp, Minus, Search, Loader2, AlertTriangle } from "lucide-react";
 import Image from "next/image";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type CropPrice = {
   id: string;
   name: string;
-  iconUrl?: string; // URL to an icon image
+  iconUrl?: string; 
   category: string;
   price: number;
-  change24h: number; // percentage
+  change24h: number; 
   market: "Local" | "National" | "International";
   lastUpdated: string;
   imageHint?: string;
 };
 
-// Mock data
-const cropPricesData: CropPrice[] = [
-  { id: "1", name: "Wheat", category: "Grains", price: 250, change24h: 2.5, market: "National", lastUpdated: "2h ago", iconUrl: "https://placehold.co/40x40.png", imageHint: "wheat icon" },
-  { id: "2", name: "Corn (Maize)", category: "Grains", price: 180, change24h: -1.2, market: "Local", lastUpdated: "1h ago", iconUrl: "https://placehold.co/40x40.png", imageHint: "corn icon" },
-  { id: "3", name: "Soybeans", category: "Oilseeds", price: 550, change24h: 0.8, market: "International", lastUpdated: "30m ago", iconUrl: "https://placehold.co/40x40.png", imageHint: "soybean icon" },
-  { id: "4", name: "Rice", category: "Grains", price: 320, change24h: 1.0, market: "National", lastUpdated: "5h ago", iconUrl: "https://placehold.co/40x40.png", imageHint: "rice icon" },
-  { id: "5", name: "Tomatoes", category: "Vegetables", price: 80, change24h: 5.2, market: "Local", lastUpdated: "45m ago", iconUrl: "https://placehold.co/40x40.png", imageHint: "tomato icon" },
-  { id: "6", name: "Potatoes", category: "Vegetables", price: 60, change24h: -0.5, market: "Local", lastUpdated: "3h ago", iconUrl: "https://placehold.co/40x40.png", imageHint: "potato icon" },
-  { id: "7", name: "Cotton", category: "Fibers", price: 700, change24h: 0.0, market: "International", lastUpdated: "1d ago", iconUrl: "https://placehold.co/40x40.png", imageHint: "cotton icon" },
-];
-
-const categories = ["All", ...new Set(cropPricesData.map(crop => crop.category))];
-const markets = ["All", ...new Set(cropPricesData.map(crop => crop.market))];
-
-
 export function CropPriceTable() {
+  const [cropPrices, setCropPrices] = useState<CropPrice[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedMarket, setSelectedMarket] = useState("All");
 
-  const filteredCrops = cropPricesData.filter(crop => {
+  const [categories, setCategories] = useState<string[]>(["All"]);
+  const [markets, setMarkets] = useState<string[]>(["All"]);
+
+  useEffect(() => {
+    const fetchCropPrices = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const response = await fetch("/api/crop-prices");
+        if (!response.ok) {
+          throw new Error(`Failed to fetch crop prices: ${response.statusText}`);
+        }
+        const data: CropPrice[] = await response.json();
+        setCropPrices(data);
+
+        // Dynamically populate filters
+        const uniqueCategories = ["All", ...new Set(data.map(crop => crop.category))];
+        const uniqueMarkets = ["All", ...new Set(data.map(crop => crop.market))];
+        setCategories(uniqueCategories);
+        setMarkets(uniqueMarkets);
+
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : "An unknown error occurred.";
+        setError(errorMessage);
+        console.error("Error fetching crop prices:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCropPrices();
+  }, []);
+
+  const filteredCrops = cropPrices.filter(crop => {
     return (
       crop.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
       (selectedCategory === "All" || crop.category === selectedCategory) &&
@@ -54,11 +79,28 @@ export function CropPriceTable() {
     return <Minus className="h-4 w-4 text-muted-foreground" />;
   };
 
+  const renderTableSkeleton = () => (
+    <>
+      {[...Array(5)].map((_, index) => (
+        <TableRow key={`skeleton-${index}`}>
+          <TableCell><Skeleton className="h-8 w-8 rounded-sm" /></TableCell>
+          <TableCell><Skeleton className="h-4 w-32" /></TableCell>
+          <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+          <TableCell className="text-right"><Skeleton className="h-4 w-16 ml-auto" /></TableCell>
+          <TableCell className="text-right"><Skeleton className="h-4 w-12 ml-auto" /></TableCell>
+          <TableCell><Skeleton className="h-4 w-20" /></TableCell>
+          <TableCell><Skeleton className="h-4 w-16" /></TableCell>
+        </TableRow>
+      ))}
+    </>
+  );
+
+
   return (
     <Card className="shadow-xl">
       <CardHeader>
         <CardTitle className="text-2xl font-bold">Crop Market Prices</CardTitle>
-        <CardDescription>Browse current market data for various crops.</CardDescription>
+        <CardDescription>Browse current market data for various crops. (Data is currently illustrative)</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="mb-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -70,9 +112,10 @@ export function CropPriceTable() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-8 w-full"
+              disabled={isLoading || !!error}
             />
           </div>
-          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+          <Select value={selectedCategory} onValueChange={setSelectedCategory} disabled={isLoading || !!error || categories.length <=1}>
             <SelectTrigger>
               <SelectValue placeholder="Filter by category" />
             </SelectTrigger>
@@ -82,7 +125,7 @@ export function CropPriceTable() {
               ))}
             </SelectContent>
           </Select>
-          <Select value={selectedMarket} onValueChange={setSelectedMarket}>
+          <Select value={selectedMarket} onValueChange={setSelectedMarket} disabled={isLoading || !!error || markets.length <=1}>
             <SelectTrigger>
               <SelectValue placeholder="Filter by market" />
             </SelectTrigger>
@@ -94,8 +137,16 @@ export function CropPriceTable() {
           </Select>
         </div>
 
+        {error && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertTitle>Error Fetching Data</AlertTitle>
+            <AlertDescription>{error} Please try refreshing the page.</AlertDescription>
+          </Alert>
+        )}
+
         <Table>
-          <TableCaption>Market prices are indicative and subject to change.</TableCaption>
+          <TableCaption>Market prices are indicative. For real-time data, API integration is required.</TableCaption>
           <TableHeader>
             <TableRow>
               <TableHead className="w-[100px]">Icon</TableHead>
@@ -108,7 +159,8 @@ export function CropPriceTable() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredCrops.length > 0 ? filteredCrops.map((crop) => (
+            {isLoading ? renderTableSkeleton() :
+             filteredCrops.length > 0 ? filteredCrops.map((crop) => (
               <TableRow key={crop.id}>
                 <TableCell>
                   {crop.iconUrl && (
@@ -128,7 +180,7 @@ export function CropPriceTable() {
             )) : (
               <TableRow>
                 <TableCell colSpan={7} className="text-center h-24">
-                  No crops match your filters.
+                  {cropPrices.length === 0 && !error ? 'No crop data available.' : 'No crops match your filters.'}
                 </TableCell>
               </TableRow>
             )}
