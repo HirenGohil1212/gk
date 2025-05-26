@@ -21,21 +21,25 @@ const AnalyzeSoilReportInputSchema = z.object({
 });
 export type AnalyzeSoilReportInput = z.infer<typeof AnalyzeSoilReportInputSchema>;
 
+const SuggestedCropSchema = z.object({
+  cropName: z.string().describe("Name of a crop suited for the current soil conditions."),
+  reasoning: z.string().describe("Explanation why this crop is suitable based on the soil report."),
+  potentialYieldEstimate: z.string().optional().describe("Estimated potential yield for this crop in suitable units (e.g., tons/hectare, kg/acre)."),
+  requiredAmendments: z.array(z.string()).optional().describe("List of minimal soil amendments, if any, required for this crop (e.g., 'lime application', 'add compost')."),
+});
+
+const HighValueCropOptionSchema = z.object({
+  cropName: z.string().describe("Name of a suggested high-value crop that could be grown with appropriate soil management."),
+  marketAnalysis: z.string().describe("Brief analysis of the market potential and demand for this high-value crop."),
+  soilPreparationPlan: z.string().describe("Detailed plan to prepare the soil for this high-value crop, including necessary amendments and tilling practices."),
+  fertilizerRecommendations: z.string().describe("Specific fertilizer types, amounts, and application timings for this high-value crop."),
+  estimatedProfitabilityNotes: z.string().optional().describe("Notes on estimated profitability or economic benefits, considering inputs and market value."),
+});
+
 const AnalyzeSoilReportOutputSchema = z.object({
   soilAnalysisSummary: z.string().describe("A brief summary of the key findings from the soil report, including pH, N, P, K levels, and organic matter if available."),
-  currentSoilSuitedCrop: z.object({
-    cropName: z.string().describe("Name of the crop best suited for the current soil conditions with minimal intervention."),
-    reasoning: z.string().describe("Explanation why this crop is suitable based on the soil report."),
-    potentialYieldEstimate: z.string().optional().describe("Estimated potential yield for this crop in suitable units (e.g., tons/hectare, kg/acre)."),
-    requiredAmendments: z.array(z.string()).optional().describe("List of minimal soil amendments, if any, required for this crop (e.g., 'lime application', 'add compost')."),
-  }),
-  highValueCropOption: z.object({
-    cropName: z.string().describe("Name of a suggested high-value crop that could be grown with appropriate soil management."),
-    marketAnalysis: z.string().describe("Brief analysis of the market potential and demand for this high-value crop."),
-    soilPreparationPlan: z.string().describe("Detailed plan to prepare the soil for this high-value crop, including necessary amendments and tilling practices."),
-    fertilizerRecommendations: z.string().describe("Specific fertilizer types, amounts, and application timings for this high-value crop."),
-    estimatedProfitabilityNotes: z.string().optional().describe("Notes on estimated profitability or economic benefits, considering inputs and market value."),
-  }),
+  suggestedCrops: z.array(SuggestedCropSchema).describe("A list of all crops suitable for the current soil conditions based on the report. This list should include various options if multiple crops are viable with minimal intervention."),
+  highValueCropOptions: z.array(HighValueCropOptionSchema).describe("A list of all high-value crop options that could be grown with appropriate soil management, along with their respective strategies. If multiple high-value crops are suitable, list them all."),
 });
 export type AnalyzeSoilReportOutput = z.infer<typeof AnalyzeSoilReportOutputSchema>;
 
@@ -59,17 +63,18 @@ User's Additional Notes:
 
 Based on the provided soil test report and any user notes, please provide the following:
 1.  **Soil Analysis Summary**: Briefly summarize the key findings from the soil report. Focus on pH, macronutrients (N, P, K), and organic matter content if discernible from the report.
-2.  **Current Soil Suited Crop**:
-    *   Recommend a crop that is well-suited to the *current* soil conditions with minimal amendments.
-    *   Explain your reasoning.
-    *   Provide an estimated potential yield.
-    *   List any minimal soil amendments needed.
-3.  **High-Value Crop Option**:
-    *   Suggest a high-value crop that could be profitably grown on this land *after* appropriate soil preparation.
-    *   Include a brief market analysis for this crop.
-    *   Outline a detailed soil preparation plan (amendments, tilling, etc.).
-    *   Provide specific fertilizer recommendations (type, amount, timing).
-    *   Offer notes on its estimated profitability.
+2.  **Suggested Crops**:
+    *   Provide a list of ALL crops that are well-suited to the *current* soil conditions with minimal amendments.
+    *   For each crop, explain your reasoning.
+    *   For each crop, provide an estimated potential yield.
+    *   For each crop, list any minimal soil amendments needed.
+3.  **High-Value Crop Options**:
+    *   Provide a list of ALL suggested high-value crops that could be profitably grown on this land *after* appropriate soil preparation and management.
+    *   For each high-value crop:
+        *   Include a brief market analysis.
+        *   Outline a detailed soil preparation plan (amendments, tilling, etc.).
+        *   Provide specific fertilizer recommendations (type, amount, timing).
+        *   Offer notes on its estimated profitability.
 
 Ensure your response strictly adheres to the JSON output format described by the output schema.
 If the soil report is unclear or lacks critical information for a specific field, state that the information was not available in the report for that field.

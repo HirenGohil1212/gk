@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { UploadCloud, CheckCircle2, AlertCircle, FlaskConical, Loader2, BookOpen } from "lucide-react";
+import { UploadCloud, CheckCircle2, AlertCircle, FlaskConical, Loader2, BookOpen, Leaf, TrendingUp } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Separator } from "./ui/separator";
 
@@ -233,32 +233,40 @@ export function SoilAnalysisForm() {
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-xl">Recommended Crop (Current Soil)</CardTitle>
+                <CardTitle className="text-xl flex items-center gap-2"><Leaf className="h-5 w-5 text-primary" />Suggested Crops (Current Soil)</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
-                <div>
-                  <Label className="text-sm font-medium text-muted-foreground">Crop Name</Label>
-                  <p className="text-lg font-semibold text-primary">{analysisResult.currentSoilSuitedCrop.cropName}</p>
-                </div>
-                <div>
-                  <Label className="text-sm font-medium text-muted-foreground">Reasoning</Label>
-                  <p className="text-foreground whitespace-pre-wrap">{analysisResult.currentSoilSuitedCrop.reasoning}</p>
-                </div>
-                {analysisResult.currentSoilSuitedCrop.potentialYieldEstimate && (
-                  <div>
-                    <Label className="text-sm font-medium text-muted-foreground">Potential Yield Estimate</Label>
-                    <p className="text-foreground">{analysisResult.currentSoilSuitedCrop.potentialYieldEstimate}</p>
-                  </div>
-                )}
-                {analysisResult.currentSoilSuitedCrop.requiredAmendments && analysisResult.currentSoilSuitedCrop.requiredAmendments.length > 0 && (
-                  <div>
-                    <Label className="text-sm font-medium text-muted-foreground">Required Amendments</Label>
-                    <ul className="list-disc list-inside space-y-1 pl-2 mt-1">
-                      {analysisResult.currentSoilSuitedCrop.requiredAmendments.map((amendment, index) => (
-                        <li key={index} className="text-foreground">{amendment}</li>
-                      ))}
-                    </ul>
-                  </div>
+              <CardContent className="space-y-4">
+                {analysisResult.suggestedCrops && analysisResult.suggestedCrops.length > 0 ? (
+                  analysisResult.suggestedCrops.map((crop, index) => (
+                    <Card key={`suggested-${index}`} className="p-4 bg-muted/30">
+                      <CardTitle className="text-lg mb-2 text-primary">{crop.cropName}</CardTitle>
+                      <div className="space-y-2">
+                        <div>
+                          <Label className="text-xs font-medium text-muted-foreground">Reasoning</Label>
+                          <p className="text-sm text-foreground whitespace-pre-wrap">{crop.reasoning}</p>
+                        </div>
+                        {crop.potentialYieldEstimate && (
+                          <div>
+                            <Label className="text-xs font-medium text-muted-foreground">Potential Yield Estimate</Label>
+                            <p className="text-sm text-foreground">{crop.potentialYieldEstimate}</p>
+                          </div>
+                        )}
+                        {crop.requiredAmendments && crop.requiredAmendments.length > 0 && (
+                          <div>
+                            <Label className="text-xs font-medium text-muted-foreground">Required Amendments</Label>
+                            <ul className="list-disc list-inside space-y-0.5 pl-2 mt-1">
+                              {crop.requiredAmendments.map((amendment, amendIndex) => (
+                                <li key={`amend-${index}-${amendIndex}`} className="text-sm text-foreground">{amendment}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                      {index < analysisResult.suggestedCrops.length - 1 && <Separator className="my-4" />}
+                    </Card>
+                  ))
+                ) : (
+                  <p className="text-muted-foreground italic">No specific crops suggested for current soil conditions.</p>
                 )}
               </CardContent>
             </Card>
@@ -267,31 +275,39 @@ export function SoilAnalysisForm() {
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-xl">High-Value Crop Option</CardTitle>
+                <CardTitle className="text-xl flex items-center gap-2"><TrendingUp className="h-5 w-5 text-primary" />High-Value Crop Options</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
-                <div>
-                  <Label className="text-sm font-medium text-muted-foreground">Crop Name</Label>
-                  <p className="text-lg font-semibold text-primary">{analysisResult.highValueCropOption.cropName}</p>
-                </div>
-                <div>
-                  <Label className="text-sm font-medium text-muted-foreground">Market Analysis</Label>
-                  <p className="text-foreground whitespace-pre-wrap">{analysisResult.highValueCropOption.marketAnalysis}</p>
-                </div>
-                <div>
-                  <Label className="text-sm font-medium text-muted-foreground">Soil Preparation Plan</Label>
-                  <p className="text-foreground whitespace-pre-wrap">{analysisResult.highValueCropOption.soilPreparationPlan}</p>
-                </div>
-                <div>
-                  <Label className="text-sm font-medium text-muted-foreground">Fertilizer Recommendations</Label>
-                  <p className="text-foreground whitespace-pre-wrap">{analysisResult.highValueCropOption.fertilizerRecommendations}</p>
-                </div>
-                {analysisResult.highValueCropOption.estimatedProfitabilityNotes && (
-                  <div>
-                    <Label className="text-sm font-medium text-muted-foreground">Estimated Profitability Notes</Label>
-                    <p className="text-foreground whitespace-pre-wrap">{analysisResult.highValueCropOption.estimatedProfitabilityNotes}</p>
-                  </div>
-                )}
+              <CardContent className="space-y-4">
+                 {analysisResult.highValueCropOptions && analysisResult.highValueCropOptions.length > 0 ? (
+                  analysisResult.highValueCropOptions.map((option, index) => (
+                     <Card key={`hv-${index}`} className="p-4 bg-muted/30">
+                        <CardTitle className="text-lg mb-2 text-primary">{option.cropName}</CardTitle>
+                        <div className="space-y-2">
+                            <div>
+                                <Label className="text-xs font-medium text-muted-foreground">Market Analysis</Label>
+                                <p className="text-sm text-foreground whitespace-pre-wrap">{option.marketAnalysis}</p>
+                            </div>
+                            <div>
+                                <Label className="text-xs font-medium text-muted-foreground">Soil Preparation Plan</Label>
+                                <p className="text-sm text-foreground whitespace-pre-wrap">{option.soilPreparationPlan}</p>
+                            </div>
+                            <div>
+                                <Label className="text-xs font-medium text-muted-foreground">Fertilizer Recommendations</Label>
+                                <p className="text-sm text-foreground whitespace-pre-wrap">{option.fertilizerRecommendations}</p>
+                            </div>
+                            {option.estimatedProfitabilityNotes && (
+                            <div>
+                                <Label className="text-xs font-medium text-muted-foreground">Estimated Profitability Notes</Label>
+                                <p className="text-sm text-foreground whitespace-pre-wrap">{option.estimatedProfitabilityNotes}</p>
+                            </div>
+                            )}
+                        </div>
+                        {index < analysisResult.highValueCropOptions.length - 1 && <Separator className="my-4" />}
+                    </Card>
+                  ))
+                 ) : (
+                    <p className="text-muted-foreground italic">No specific high-value crop options suggested.</p>
+                 )}
               </CardContent>
             </Card>
           </CardContent>
@@ -305,3 +321,4 @@ export function SoilAnalysisForm() {
     </div>
   );
 }
+
