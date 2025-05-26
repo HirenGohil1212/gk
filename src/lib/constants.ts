@@ -1,6 +1,6 @@
 
 import type { LucideIcon } from 'lucide-react';
-import { LayoutDashboard, Stethoscope, CloudSun, BarChart3, BookText, Leaf, FlaskConical, Users, ShieldCheck, Sprout } from 'lucide-react';
+import { LayoutDashboard, Stethoscope, CloudSun, BarChart3, BookText, Leaf, FlaskConical, Users, ShieldCheck, Sprout, Languages } from 'lucide-react'; // Added Languages
 
 export type NavItem = {
   href: string;
@@ -39,6 +39,11 @@ export const NAV_ITEMS: NavItem[] = [
     href: '/crop-guide',
     label: 'Crop Nutrient Guide',
     icon: Sprout,
+  },
+  {
+    href: '/translator',
+    label: 'Translator',
+    icon: Languages,
   },
   {
     href: '/resources',
@@ -80,4 +85,3 @@ export type UserProfile = {
   displayName?: string;
   createdAt: any; // Firestore Timestamp
 };
-
