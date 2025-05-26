@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Thermometer, Cloud, CloudDrizzle, CloudFog, CloudLightning, CloudRain, CloudSnow, CloudSun, Sun, Umbrella, Wind, MapPin, Loader2, AlertTriangle, RotateCw, Moon, Cloudy, SunSnow, MoonCloud, CloudMoon } from "lucide-react";
+import { Thermometer, Cloud, Umbrella, Wind, MapPin, Loader2, AlertTriangle, RotateCw } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 
@@ -41,8 +41,8 @@ type DailyForecast = {
 type WeatherData = {
   locationName: string;
   current: WeatherCondition;
-  hourly: HourlyForecast[];
-  daily: DailyForecast[];
+  hourly: HourlyForecast[]; // Will be empty with /data/2.5/weather
+  daily: DailyForecast[];   // Will be empty with /data/2.5/weather
 };
 
 
@@ -122,11 +122,11 @@ export function WeatherDisplay() {
     if (navigator.permissions && navigator.permissions.query) {
       navigator.permissions.query({ name: 'geolocation' }).then(status => {
         setPermissionStatus(status.state);
-        if (status.state === 'granted') { // If already granted (or granted now)
-            handleLocationRequest(); // Attempt to get location and fetch weather
+        if (status.state === 'granted') { 
+            handleLocationRequest(); 
         } else if (status.state === 'prompt') {
-          setIsLoading(false); // Not loading yet, waiting for user interaction
-        } else { // Denied
+          setIsLoading(false); 
+        } else { 
           setError("Location access denied. Please enable location services in your browser settings to see local weather.");
           setIsLoading(false);
         }
@@ -142,15 +142,12 @@ export function WeatherDisplay() {
           }
         };
       }).catch(() => {
-        // Fallback for browsers that might not fully support navigator.permissions.query
-        // or if it throws an error for some reason.
         handleLocationRequest(); 
       });
     } else {
-      // Fallback for older browsers without navigator.permissions
       handleLocationRequest();
     }
-  }, [handleLocationRequest]); // Removed fetchWeatherFromApi and location from deps, handleLocationRequest covers it
+  }, [handleLocationRequest]);
 
 
   if (isLoading && permissionStatus === 'prompt') {
@@ -226,7 +223,7 @@ export function WeatherDisplay() {
         <Card className="shadow-xl text-center">
           <CardHeader>
             <CardTitle>Weather Data Not Loaded</CardTitle>
-            <CardDescription>Could not load weather information. Please try again or check API key if error persists.</CardDescription>
+            <CardDescription>Could not load weather information. Please try again.</CardDescription>
           </CardHeader>
           <CardContent>
             <Button onClick={() => location && fetchWeatherFromApi(location.latitude, location.longitude)} className="mt-4" disabled={isLoading || !location}>
@@ -276,47 +273,10 @@ export function WeatherDisplay() {
         </CardContent>
       </Card>
 
-      {/* Weather Alerts section is removed as the /data/2.5/forecast endpoint doesn't provide it */}
-
-      <Card className="shadow-lg">
-        <CardHeader>
-          <CardTitle>Forecast (Next 24 Hours / 3-Hour Intervals)</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4">
-            {weatherData.hourly.map((hour) => (
-              <Card key={hour.dt} className="p-3 flex flex-col items-center text-center bg-muted/30 hover:bg-muted/50 transition-colors rounded-lg">
-                <p className="font-medium text-sm">{hour.time}</p>
-                <WeatherIcon iconName={hour.icon} className="my-2 h-8 w-8 md:h-10 md:w-10 text-primary" />
-                <p className="text-lg font-semibold">{hour.temp}°C</p>
-                <p className="text-xs text-muted-foreground capitalize">{hour.condition}</p>
-              </Card>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className="shadow-lg">
-        <CardHeader>
-          <CardTitle>5-Day Forecast</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {weatherData.daily.map((day) => (
-            <div key={day.dt} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors">
-              <p className="font-medium w-1/4 text-sm">{day.day}</p>
-              <div className="w-1/2 flex items-center justify-center gap-2">
-                <WeatherIcon iconName={day.icon} className="h-6 w-6 md:h-7 md:w-7 text-primary" />
-                <p className="text-xs text-muted-foreground capitalize hidden sm:block">{day.condition}</p>
-              </div>
-              <p className="text-sm w-1/4 text-right">
-                <span className="font-semibold">{day.high}°</span> / {day.low}°
-              </p>
-            </div>
-          ))}
-        </CardContent>
-      </Card>
+      {/* Hourly and Daily forecast sections are removed as /data/2.5/weather does not provide this data */}
+      
       <CardFooter className="text-xs text-muted-foreground text-center block pt-4">
-        Weather data provided by OpenWeatherMap.
+        Weather data provided by OpenWeatherMap. Forecasts are not available with the current API configuration.
       </CardFooter>
     </div>
   );
