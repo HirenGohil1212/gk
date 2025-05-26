@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Thermometer, Cloud, CloudDrizzle, CloudFog, CloudLightning, CloudRain, CloudSnow, CloudSun, Sun, Umbrella, Wind, MapPin, Loader2, AlertTriangle, RotateCw, Moon, Cloudy, SunSnow, MoonCloud, CloudMoon } from "lucide-react"; // Added more icons
+import { Thermometer, Cloud, CloudDrizzle, CloudFog, CloudLightning, CloudRain, CloudSnow, CloudSun, Sun, Umbrella, Wind, MapPin, Loader2, AlertTriangle, RotateCw, Moon, Cloudy, SunSnow, MoonCloud, CloudMoon } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 
@@ -45,21 +45,6 @@ type WeatherData = {
   daily: DailyForecast[];
 };
 
-type WeatherAlertInfo = {
-  id: string;
-  title: string;
-  description: string;
-  severity: "warning" | "info" | "danger";
-  date: string;
-  sender: string;
-};
-
-// This type will be the expected response from our /api/weather endpoint
-type ApiWeatherResponse = {
-  weatherData: WeatherData;
-  weatherAlerts: WeatherAlertInfo[];
-};
-
 
 const WeatherIcon = ({ iconName, className }: { iconName: React.ElementType; className?: string }) => {
   const IconComponent = iconName || Cloud; // Default to Cloud if no icon provided
@@ -67,7 +52,7 @@ const WeatherIcon = ({ iconName, className }: { iconName: React.ElementType; cla
 };
 
 export function WeatherDisplay() {
-  const [apiResponse, setApiResponse] = useState<ApiWeatherResponse | null>(null);
+  const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -78,17 +63,17 @@ export function WeatherDisplay() {
     setError(null);
     try {
       const response = await fetch(`/api/weather?lat=${latitude}&lon=${longitude}`);
+      const data = await response.json(); // Parse JSON first to check for error structure
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || `Failed to fetch weather: ${response.statusText}`);
+        // Use the error message from the API response if available
+        throw new Error(data.error || `Failed to fetch weather: ${response.statusText}`);
       }
-      const data: ApiWeatherResponse = await response.json();
-      setApiResponse(data);
+      setWeatherData(data); // data is WeatherData if successful
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "An unknown error occurred.";
       setError(errorMessage);
       console.error(err);
-      setApiResponse(null); // Clear old data on error
+      setWeatherData(null); // Clear old data on error
     } finally {
       setIsLoading(false);
     }
@@ -102,7 +87,7 @@ export function WeatherDisplay() {
       return;
     }
 
-    setIsLoading(true); // Set loading true when requesting location
+    setIsLoading(true); 
     setError(null);
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -128,7 +113,7 @@ export function WeatherDisplay() {
         }
         setPermissionStatus("denied");
         setIsLoading(false);
-        setApiResponse(null); // Clear any stale data
+        setWeatherData(null); 
       }
     );
   }, [fetchWeatherFromApi]);
@@ -137,13 +122,11 @@ export function WeatherDisplay() {
     if (navigator.permissions && navigator.permissions.query) {
       navigator.permissions.query({ name: 'geolocation' }).then(status => {
         setPermissionStatus(status.state);
-        if (status.state === 'granted' && location) { // If already granted and location known, fetch
-             fetchWeatherFromApi(location.latitude, location.longitude);
-        } else if (status.state === 'granted' && !location) { // Granted but no location yet (e.g. page refresh)
-            handleLocationRequest();
+        if (status.state === 'granted') { // If already granted (or granted now)
+            handleLocationRequest(); // Attempt to get location and fetch weather
         } else if (status.state === 'prompt') {
-          setIsLoading(false); 
-        } else { 
+          setIsLoading(false); // Not loading yet, waiting for user interaction
+        } else { // Denied
           setError("Location access denied. Please enable location services in your browser settings to see local weather.");
           setIsLoading(false);
         }
@@ -155,19 +138,20 @@ export function WeatherDisplay() {
           } else if (status.state === 'denied') {
              setError("Location access denied. Please enable location services in your browser settings to see local weather.");
              setIsLoading(false);
-             setApiResponse(null);
+             setWeatherData(null);
           }
         };
       }).catch(() => {
-        handleLocationRequest(); // Fallback if permission query fails
+        // Fallback for browsers that might not fully support navigator.permissions.query
+        // or if it throws an error for some reason.
+        handleLocationRequest(); 
       });
     } else {
-      handleLocationRequest(); // Fallback for older browsers
+      // Fallback for older browsers without navigator.permissions
+      handleLocationRequest();
     }
-  }, [handleLocationRequest, fetchWeatherFromApi, location]); // Add location to deps
+  }, [handleLocationRequest]); // Removed fetchWeatherFromApi and location from deps, handleLocationRequest covers it
 
-  const weatherData = apiResponse?.weatherData;
-  const weatherAlerts = apiResponse?.weatherAlerts || [];
 
   if (isLoading && permissionStatus === 'prompt') {
     return (
@@ -192,10 +176,10 @@ export function WeatherDisplay() {
           <CardDescription>To show you the local weather, please grant location access.</CardDescription>
         </CardHeader>
         <CardContent>
-          {error && ( 
+          {error && permissionStatus === 'denied' && ( 
             <Alert variant="destructive" className="mb-4 text-left">
               <AlertTriangle className="h-4 w-4" />
-              <AlertTitle>Error</AlertTitle>
+              <AlertTitle>Location Error</AlertTitle>
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
@@ -225,13 +209,13 @@ export function WeatherDisplay() {
         <CardContent>
            <Alert variant="destructive" className="mb-4 text-left">
               <AlertTriangle className="h-4 w-4" />
-              <AlertTitle>Error</AlertTitle>
-              <AlertDescription>{error} Please check your OpenWeatherMap API key in the .env file or try again.</AlertDescription>
+              <AlertTitle>Error Fetching Weather</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
             </Alert>
             <Button onClick={() => location && fetchWeatherFromApi(location.latitude, location.longitude)} disabled={isLoading || !location}>
              <RotateCw className="mr-2 h-4 w-4" /> Retry
             </Button>
-             {!location && <p className="text-sm text-muted-foreground mt-2">If location access was denied, please grant it and retry.</p>}
+             {!location && permissionStatus === 'denied' && <p className="text-sm text-muted-foreground mt-2">If location access was denied, please grant it and retry.</p>}
         </CardContent>
       </Card>
     );
@@ -242,7 +226,7 @@ export function WeatherDisplay() {
         <Card className="shadow-xl text-center">
           <CardHeader>
             <CardTitle>Weather Data Not Loaded</CardTitle>
-            <CardDescription>Could not load weather information. This might be due to missing API key or network issues. Please ensure your OPENWEATHERMAP_API_KEY is set in .env.</CardDescription>
+            <CardDescription>Could not load weather information. Please try again or check API key if error persists.</CardDescription>
           </CardHeader>
           <CardContent>
             <Button onClick={() => location && fetchWeatherFromApi(location.latitude, location.longitude)} className="mt-4" disabled={isLoading || !location}>
@@ -292,39 +276,14 @@ export function WeatherDisplay() {
         </CardContent>
       </Card>
 
-      {weatherAlerts.length > 0 && (
-        <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-orange-500" /> Weather Alerts & Advisories
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {weatherAlerts.map((alert) => (
-              <Alert key={alert.id} variant={alert.severity === "danger" ? "destructive" : "default"} 
-                     className={cn(
-                        alert.severity === "warning" && "border-orange-500/50 text-orange-700 dark:text-orange-400 [&>svg]:text-orange-500",
-                        alert.severity === "info" && "border-blue-500/50 text-blue-700 dark:text-blue-400 [&>svg]:text-blue-500"
-                     )}
-              >
-                <AlertTriangle className="h-4 w-4" /> {/* Generic icon, color will hint severity */}
-                <AlertTitle>{alert.title} - <span className="font-normal text-xs">({alert.sender} - {alert.date})</span></AlertTitle>
-                <AlertDescription className="whitespace-pre-line">{alert.description}</AlertDescription>
-              </Alert>
-            ))}
-             <p className="text-xs text-muted-foreground pt-2">
-                Alerts are provided by meteorological agencies via OpenWeatherMap. Always consult official sources for critical decisions.
-            </p>
-          </CardContent>
-        </Card>
-      )}
+      {/* Weather Alerts section is removed as the /data/2.5/forecast endpoint doesn't provide it */}
 
       <Card className="shadow-lg">
         <CardHeader>
-          <CardTitle>Hourly Forecast (Next 12 Hours)</CardTitle>
+          <CardTitle>Forecast (Next 24 Hours / 3-Hour Intervals)</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4">
             {weatherData.hourly.map((hour) => (
               <Card key={hour.dt} className="p-3 flex flex-col items-center text-center bg-muted/30 hover:bg-muted/50 transition-colors rounded-lg">
                 <p className="font-medium text-sm">{hour.time}</p>
@@ -339,7 +298,7 @@ export function WeatherDisplay() {
 
       <Card className="shadow-lg">
         <CardHeader>
-          <CardTitle>7-Day Forecast</CardTitle>
+          <CardTitle>5-Day Forecast</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           {weatherData.daily.map((day) => (
@@ -362,4 +321,3 @@ export function WeatherDisplay() {
     </div>
   );
 }
-

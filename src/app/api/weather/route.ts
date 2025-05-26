@@ -1,6 +1,6 @@
 
 import { type NextRequest, NextResponse } from 'next/server';
-import { Cloud, CloudDrizzle, CloudFog, CloudLightning, CloudRain, CloudSnow, CloudSun, Moon, Sun, ThermometerSun, ThermometerSnow, Waves, Wind, Zap, Snowflake, Cloudy, SunSnow, MoonCloud, CloudMoon } from 'lucide-react'; // Added more icons
+import { Cloud, CloudDrizzle, CloudFog, CloudLightning, CloudRain, CloudSnow, CloudSun, Moon, Sun, Wind, Cloudy, SunSnow, MoonCloud, CloudMoon } from 'lucide-react';
 
 // Helper function to map OpenWeatherMap icon codes to Lucide icons
 const getIcon = (iconCode: string): React.ElementType => {
@@ -10,7 +10,7 @@ const getIcon = (iconCode: string): React.ElementType => {
     case '02d': return CloudSun; // few clouds day
     case '02n': return CloudMoon; // few clouds night
     case '03d': return Cloud; // scattered clouds day
-    case '03n': return Cloud; // scattered clouds night (using same as day for simplicity)
+    case '03n': return Cloud; // scattered clouds night
     case '04d': return Cloudy; // broken clouds day
     case '04n': return Cloudy; // broken clouds night
     case '09d': return CloudDrizzle; // shower rain day
@@ -40,7 +40,7 @@ type WeatherCondition = {
 };
 
 type HourlyForecast = {
-  time: string; // e.g., "3 PM", "Now"
+  time: string; // e.g., "3 PM"
   temp: number;
   condition: string;
   icon: React.ElementType;
@@ -57,19 +57,10 @@ type DailyForecast = {
 };
 
 type WeatherData = {
-  locationName: string; // Name of the location if available
+  locationName: string;
   current: WeatherCondition;
-  hourly: HourlyForecast[];
+  hourly: HourlyForecast[]; // Will be 3-hourly
   daily: DailyForecast[];
-};
-
-type WeatherAlertInfo = {
-  id: string;
-  title: string;
-  description:string;
-  severity: "warning" | "info" | "danger";
-  date: string; // Start date of the alert
-  sender: string;
 };
 
 
@@ -88,34 +79,28 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // Using OpenWeatherMap One Call API 3.0.
-    // The free tier for this API typically includes 1,000 calls/day and provides:
-    // - Current weather
-    // - Minutely forecast for 1 hour (we exclude this with `exclude=minutely`)
-    // - Hourly forecast for 48 hours (we use the first 12 hours)
-    // - Daily forecast for 8 days (we use the first 7 days)
-    // - National weather alerts
-    // This setup is intended to stay within these free limits.
-    const oneCallUrl = `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&exclude=minutely&appid=${apiKey}&units=metric`;
+    // Using OpenWeatherMap 5 day / 3 hour forecast API (data/2.5/forecast)
+    // This endpoint is generally available on free plans.
+    const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`;
     const geoUrl = `https://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lon}&limit=1&appid=${apiKey}`;
 
-    const [oneCallResponse, geoResponse] = await Promise.all([
-      fetch(oneCallUrl),
+    const [forecastResponse, geoResponse] = await Promise.all([
+      fetch(forecastUrl),
       fetch(geoUrl)
     ]);
 
-    if (!oneCallResponse.ok) {
-      const errorData = await oneCallResponse.json();
-      console.error("OpenWeatherMap OneCall API error:", errorData);
-      return NextResponse.json({ error: `Failed to fetch weather data: ${errorData.message || oneCallResponse.statusText}` }, { status: oneCallResponse.status });
+    if (!forecastResponse.ok) {
+      const errorData = await forecastResponse.json();
+      console.error("OpenWeatherMap Forecast API error:", errorData);
+      return NextResponse.json({ error: `Failed to fetch weather data: ${errorData.message || forecastResponse.statusText}` }, { status: forecastResponse.status });
     }
      if (!geoResponse.ok) {
-      // Non-critical, so we can proceed without location name
       console.warn("OpenWeatherMap Geo API error:", await geoResponse.text());
     }
 
-    const weatherApiData = await oneCallResponse.json();
-    let locationName = "Current Location";
+    const weatherApiData = await forecastResponse.json();
+    let locationName = weatherApiData.city?.name || "Current Location"; 
+
     if (geoResponse.ok) {
         const geoApiData = await geoResponse.json();
         if (geoApiData && geoApiData.length > 0) {
@@ -125,60 +110,92 @@ export async function GET(request: NextRequest) {
         }
     }
 
-
+    if (!weatherApiData.list || weatherApiData.list.length === 0) {
+        return NextResponse.json({ error: 'No forecast data received from OpenWeatherMap.' }, { status: 500 });
+    }
+    
+    const firstForecast = weatherApiData.list[0];
     const currentWeatherData: WeatherCondition = {
-      dt: weatherApiData.current.dt,
-      temp: Math.round(weatherApiData.current.temp),
-      condition: weatherApiData.current.weather[0]?.description || 'N/A',
-      icon: getIcon(weatherApiData.current.weather[0]?.icon),
-      humidity: weatherApiData.current.humidity,
-      windSpeed: Math.round(weatherApiData.current.wind_speed * 3.6), // m/s to km/h
-      windDirection: getWindDirection(weatherApiData.current.wind_deg),
-      feelsLike: Math.round(weatherApiData.current.feels_like),
+      dt: firstForecast.dt,
+      temp: Math.round(firstForecast.main.temp),
+      condition: firstForecast.weather[0]?.description || 'N/A',
+      icon: getIcon(firstForecast.weather[0]?.icon),
+      humidity: firstForecast.main.humidity,
+      windSpeed: Math.round(firstForecast.wind.speed * 3.6), // m/s to km/h
+      windDirection: getWindDirection(firstForecast.wind.deg),
+      feelsLike: Math.round(firstForecast.main.feels_like),
     };
 
-    const hourlyForecasts: HourlyForecast[] = (weatherApiData.hourly || []).slice(0, 12).map((hour: any, index: number) => ({ // Take next 12 hours
+    const hourlyForecasts: HourlyForecast[] = (weatherApiData.list || []).slice(0, 8).map((hour: any) => ({ // Next 8 * 3 = 24 hours
       dt: hour.dt,
-      time: index === 0 ? 'Now' : new Date(hour.dt * 1000).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true }),
-      temp: Math.round(hour.temp),
+      time: new Date(hour.dt * 1000).toLocaleTimeString([], { hour: 'numeric', hour12: true }),
+      temp: Math.round(hour.main.temp),
       condition: hour.weather[0]?.description || 'N/A',
       icon: getIcon(hour.weather[0]?.icon),
     }));
 
-    const dailyForecasts: DailyForecast[] = (weatherApiData.daily || []).slice(0, 7).map((day: any, index: number) => ({ // Take next 7 days
-      dt: day.dt,
-      day: index === 0 ? 'Today' : new Date(day.dt * 1000).toLocaleDateString([], { weekday: 'short' }),
-      high: Math.round(day.temp.max),
-      low: Math.round(day.temp.min),
-      condition: day.weather[0]?.description || 'N/A',
-      icon: getIcon(day.weather[0]?.icon),
-    }));
+    // Process data for daily forecasts
+    const dailyDataAggregator: { [key: string]: { temps: number[], highs: number[], lows: number[], dts: number[], weatherEntries: {icon: string, condition: string, dt: number}[]} } = {};
+
+    (weatherApiData.list || []).forEach((item: any) => {
+        const dateStr = new Date(item.dt * 1000).toISOString().split('T')[0];
+        if (!dailyDataAggregator[dateStr]) {
+            dailyDataAggregator[dateStr] = { temps: [], highs: [], lows: [], dts: [], weatherEntries: [] };
+        }
+        dailyDataAggregator[dateStr].temps.push(item.main.temp);
+        dailyDataAggregator[dateStr].highs.push(item.main.temp_max);
+        dailyDataAggregator[dateStr].lows.push(item.main.temp_min);
+        dailyDataAggregator[dateStr].dts.push(item.dt);
+        if (item.weather && item.weather[0]) {
+            dailyDataAggregator[dateStr].weatherEntries.push({
+                icon: item.weather[0].icon,
+                condition: item.weather[0].description,
+                dt: item.dt
+            });
+        }
+    });
     
-    const weatherAlerts: WeatherAlertInfo[] = (weatherApiData.alerts || []).map((alert: any, index: number) => ({
-        id: `alert-${index}-${alert.event.replace(/\s+/g, '-')}`,
-        title: alert.event,
-        description: alert.description,
-        // Simplified severity, real APIs might have more detailed levels
-        severity: alert.event.toLowerCase().includes("warning") ? "warning" : alert.event.toLowerCase().includes("watch") ? "warning" : "info",
-        date: new Date(alert.start * 1000).toLocaleDateString(),
-        sender: alert.sender_name || "Meteorological Agency",
-    }));
+    const dailyForecasts: DailyForecast[] = Object.keys(dailyDataAggregator).slice(0, 5).map((dateStr, index) => {
+        const dayData = dailyDataAggregator[dateStr];
+        const high = Math.round(Math.max(...dayData.highs));
+        const low = Math.round(Math.min(...dayData.lows));
+        
+        // Find weather for midday (around 12:00-14:00) for a representative icon/condition
+        let representativeWeather = dayData.weatherEntries.find(w => {
+            const hour = new Date(w.dt * 1000).getHours();
+            return hour >= 11 && hour <= 14;
+        });
+        if (!representativeWeather && dayData.weatherEntries.length > 0) {
+             // Fallback to the first weather entry of the day if no midday entry
+            representativeWeather = dayData.weatherEntries[0];
+        }
+
+        return {
+            dt: new Date(dateStr + "T12:00:00Z").getTime() / 1000, // Consistent DT for the day
+            day: index === 0 && new Date(dateStr).toDateString() === new Date().toDateString() ? 'Today' : new Date(dateStr).toLocaleDateString([], { weekday: 'short' }),
+            high: high,
+            low: low,
+            condition: representativeWeather?.condition || 'N/A',
+            icon: getIcon(representativeWeather?.icon || '03d'), // Default to cloud
+        };
+    });
 
 
-    const responsePayload: { weatherData: WeatherData, weatherAlerts: WeatherAlertInfo[] } = {
-        weatherData: {
-            locationName: locationName,
-            current: currentWeatherData,
-            hourly: hourlyForecasts,
-            daily: dailyForecasts,
-        },
-        weatherAlerts: weatherAlerts
+    const responsePayload: WeatherData = {
+        locationName: locationName,
+        current: currentWeatherData,
+        hourly: hourlyForecasts,
+        daily: dailyForecasts,
     };
 
     return NextResponse.json(responsePayload);
 
   } catch (error) {
     console.error('Error in weather API route:', error);
+    // Pass specific API error messages to the client if available
+    if (error instanceof Error && (error as any).message?.includes("subscription")) {
+        return NextResponse.json({ error: (error as any).message }, { status: 401 });
+    }
     return NextResponse.json({ error: 'Internal server error fetching weather data' }, { status: 500 });
   }
 }
@@ -188,4 +205,3 @@ function getWindDirection(degrees: number): string {
   const index = Math.round(degrees / 22.5) % 16;
   return directions[index];
 }
-
