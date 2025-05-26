@@ -88,6 +88,14 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    // Using OpenWeatherMap One Call API 3.0.
+    // The free tier for this API typically includes 1,000 calls/day and provides:
+    // - Current weather
+    // - Minutely forecast for 1 hour (we exclude this with `exclude=minutely`)
+    // - Hourly forecast for 48 hours (we use the first 12 hours)
+    // - Daily forecast for 8 days (we use the first 7 days)
+    // - National weather alerts
+    // This setup is intended to stay within these free limits.
     const oneCallUrl = `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&exclude=minutely&appid=${apiKey}&units=metric`;
     const geoUrl = `https://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lon}&limit=1&appid=${apiKey}`;
 
@@ -180,3 +188,4 @@ function getWindDirection(degrees: number): string {
   const index = Math.round(degrees / 22.5) % 16;
   return directions[index];
 }
+
