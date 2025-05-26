@@ -1,5 +1,6 @@
+
 import type { LucideIcon } from 'lucide-react';
-import { LayoutDashboard, Stethoscope, CloudSun, BarChart3, BookText, Leaf } from 'lucide-react';
+import { LayoutDashboard, Stethoscope, CloudSun, BarChart3, BookText, Leaf, FlaskConical } from 'lucide-react';
 
 export type NavItem = {
   href: string;
@@ -18,6 +19,11 @@ export const NAV_ITEMS: NavItem[] = [
     href: '/diagnosis',
     label: 'Smart Diagnosis',
     icon: Stethoscope,
+  },
+  {
+    href: '/soil-analysis',
+    label: 'Soil Analysis',
+    icon: FlaskConical,
   },
   {
     href: '/weather',
