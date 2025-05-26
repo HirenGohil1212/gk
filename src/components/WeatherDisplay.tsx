@@ -1,53 +1,66 @@
 
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, type ReactNode } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Thermometer, Cloud, Umbrella, Wind, MapPin, Loader2, AlertTriangle, RotateCw } from "lucide-react";
+import { 
+  Thermometer, Cloud, Umbrella, Wind, MapPin, Loader2, AlertTriangle, RotateCw,
+  Sun, Moon, CloudSun, CloudMoon, Cloudy, CloudDrizzle, CloudRain, CloudLightning, CloudSnow, CloudFog 
+} from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 
-// Redefine types to match what the API route will provide
+// Types to match what the API route will provide
 type WeatherCondition = {
   temp: number;
   condition: string;
-  icon: React.ElementType; // Icon component itself
+  icon: string; // OWM icon code (e.g., "01d")
   humidity?: number;
-  windSpeed?: number; // km/h
+  windSpeed?: number;
   windDirection?: string;
   feelsLike?: number;
   dt: number;
 };
 
-type HourlyForecast = {
-  time: string;
-  temp: number;
-  condition: string;
-  icon: React.ElementType;
-  dt: number;
-};
-
-type DailyForecast = {
-  day: string;
-  high: number;
-  low: number;
-  condition: string;
-  icon: React.ElementType;
-  dt: number;
-};
+type HourlyForecast = Record<string, never>;
+type DailyForecast = Record<string, never>;
 
 type WeatherData = {
   locationName: string;
   current: WeatherCondition;
-  hourly: HourlyForecast[]; // Will be empty with /data/2.5/weather
-  daily: DailyForecast[];   // Will be empty with /data/2.5/weather
+  hourly: HourlyForecast[];
+  daily: DailyForecast[];
 };
 
+// Helper function to map OpenWeatherMap icon codes to Lucide icons on the client side
+const getLucideIcon = (iconCode: string): React.ElementType => {
+  switch (iconCode) {
+    case '01d': return Sun; // clear sky day
+    case '01n': return Moon; // clear sky night
+    case '02d': return CloudSun; // few clouds day
+    case '02n': return CloudMoon; // few clouds night
+    case '03d': return Cloud; // scattered clouds day
+    case '03n': return Cloud; // scattered clouds night
+    case '04d': return Cloudy; // broken clouds day
+    case '04n': return Cloudy; // broken clouds night
+    case '09d': return CloudDrizzle; // shower rain day
+    case '09n': return CloudDrizzle; // shower rain night
+    case '10d': return CloudRain; // rain day
+    case '10n': return CloudRain; // rain night
+    case '11d': return CloudLightning; // thunderstorm day
+    case '11n': return CloudLightning; // thunderstorm night
+    case '13d': return CloudSnow; // snow day
+    case '13n': return CloudSnow; // snow night
+    case '50d': return CloudFog; // mist day
+    case '50n': return CloudFog; // mist night
+    default: return Cloud; // Default icon
+  }
+};
 
-const WeatherIcon = ({ iconName, className }: { iconName: React.ElementType; className?: string }) => {
-  const IconComponent = iconName || Cloud; // Default to Cloud if no icon provided
+const WeatherIcon = ({ iconCode, className }: { iconCode: string; className?: string }) => {
+  const IconComponent = getLucideIcon(iconCode || '03d'); // Default to Cloud if no icon provided or unknown
   return <IconComponent className={cn("h-8 w-8", className)} />;
 };
 
@@ -63,17 +76,16 @@ export function WeatherDisplay() {
     setError(null);
     try {
       const response = await fetch(`/api/weather?lat=${latitude}&lon=${longitude}`);
-      const data = await response.json(); // Parse JSON first to check for error structure
+      const data = await response.json();
       if (!response.ok) {
-        // Use the error message from the API response if available
         throw new Error(data.error || `Failed to fetch weather: ${response.statusText}`);
       }
-      setWeatherData(data); // data is WeatherData if successful
+      setWeatherData(data);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "An unknown error occurred.";
       setError(errorMessage);
       console.error(err);
-      setWeatherData(null); // Clear old data on error
+      setWeatherData(null);
     } finally {
       setIsLoading(false);
     }
@@ -97,20 +109,19 @@ export function WeatherDisplay() {
         fetchWeatherFromApi(latitude, longitude);
       },
       (err) => {
+        let message = "An unknown error occurred while getting location.";
         switch (err.code) {
           case err.PERMISSION_DENIED:
-            setError("Location access denied. Please enable location services in your browser settings to see local weather.");
+            message = "Location access denied. Please enable location services in your browser settings to see local weather.";
             break;
           case err.POSITION_UNAVAILABLE:
-            setError("Location information is unavailable.");
+            message = "Location information is unavailable.";
             break;
           case err.TIMEOUT:
-            setError("The request to get user location timed out.");
-            break;
-          default:
-            setError("An unknown error occurred while getting location.");
+            message = "The request to get user location timed out.";
             break;
         }
+        setError(message);
         setPermissionStatus("denied");
         setIsLoading(false);
         setWeatherData(null); 
@@ -119,34 +130,43 @@ export function WeatherDisplay() {
   }, [fetchWeatherFromApi]);
 
   useEffect(() => {
-    if (navigator.permissions && navigator.permissions.query) {
-      navigator.permissions.query({ name: 'geolocation' }).then(status => {
-        setPermissionStatus(status.state);
-        if (status.state === 'granted') { 
-            handleLocationRequest(); 
-        } else if (status.state === 'prompt') {
-          setIsLoading(false); 
-        } else { 
-          setError("Location access denied. Please enable location services in your browser settings to see local weather.");
-          setIsLoading(false);
-        }
-        
-        status.onchange = () => {
+    const checkPermissionAndFetch = async () => {
+      if (navigator.permissions && navigator.permissions.query) {
+        try {
+          const status = await navigator.permissions.query({ name: 'geolocation' });
           setPermissionStatus(status.state);
-          if (status.state === 'granted') {
-            handleLocationRequest();
-          } else if (status.state === 'denied') {
-             setError("Location access denied. Please enable location services in your browser settings to see local weather.");
-             setIsLoading(false);
-             setWeatherData(null);
+          if (status.state === 'granted') { 
+              handleLocationRequest(); 
+          } else if (status.state === 'prompt') {
+            setIsLoading(false); 
+          } else { 
+            setError("Location access denied. Please enable location services in your browser settings to see local weather.");
+            setIsLoading(false);
           }
-        };
-      }).catch(() => {
-        handleLocationRequest(); 
-      });
-    } else {
-      handleLocationRequest();
-    }
+          
+          status.onchange = () => {
+            setPermissionStatus(status.state);
+            if (status.state === 'granted') {
+              handleLocationRequest();
+            } else if (status.state === 'denied') {
+               setError("Location access denied. Please enable location services in your browser settings to see local weather.");
+               setIsLoading(false);
+               setWeatherData(null);
+            } else if (status.state === 'prompt') {
+              setIsLoading(false); // Ready for user to click button
+              setWeatherData(null); // Clear any old data
+              setError(null);
+            }
+          };
+        } catch (e) {
+          // Fallback for browsers that might not support permissions.query or throw
+          handleLocationRequest();
+        }
+      } else {
+        handleLocationRequest(); // Fallback for older browsers
+      }
+    };
+    checkPermissionAndFetch();
   }, [handleLocationRequest]);
 
 
@@ -251,11 +271,11 @@ export function WeatherDisplay() {
         <CardContent className="p-6">
           <div className="grid md:grid-cols-2 gap-6 items-center">
             <div className="flex flex-col items-center md:items-start">
-              <WeatherIcon iconName={weatherData.current.icon} className="h-20 w-20 md:h-24 md:w-24 text-primary mb-2" />
+              <WeatherIcon iconCode={weatherData.current.icon} className="h-20 w-20 md:h-24 md:w-24 text-primary mb-2" />
               <p className="text-5xl md:text-6xl font-bold">{weatherData.current.temp}°C</p>
               <p className="text-muted-foreground">Feels like {weatherData.current.feelsLike}°C</p>
             </div>
-            <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm">
               <div className="flex items-center gap-2">
                 <Umbrella className="h-5 w-5 text-primary" />
                 <span>Humidity: {weatherData.current.humidity}%</span>
@@ -272,11 +292,9 @@ export function WeatherDisplay() {
           </div>
         </CardContent>
       </Card>
-
-      {/* Hourly and Daily forecast sections are removed as /data/2.5/weather does not provide this data */}
       
       <CardFooter className="text-xs text-muted-foreground text-center block pt-4">
-        Weather data provided by OpenWeatherMap. Forecasts are not available with the current API configuration.
+        Weather data provided by OpenWeatherMap. Forecasts are not available with this API configuration.
       </CardFooter>
     </div>
   );
