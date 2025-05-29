@@ -64,22 +64,24 @@ type WeatherData = {
 };
 
 const getLucideIcon = (iconCode: string): React.ElementType => {
-  switch (iconCode?.substring(0, 2)) { // OWM icons sometimes have 'd' or 'n' suffix
+  if (!iconCode) return Cloud; // Default icon
+  const mainPart = iconCode.substring(0, 2);
+  switch (mainPart) {
     case '01': return iconCode.endsWith('n') ? Moon : Sun;
     case '02': return iconCode.endsWith('n') ? CloudMoon : CloudSun;
     case '03': return Cloud;
     case '04': return Cloudy;
-    case '09': return CloudDrizzle;
-    case '10': return CloudRain;
-    case '11': return CloudLightning;
-    case '13': return CloudSnow;
-    case '50': return CloudFog;
-    default: return Cloud;
+    case '09': return CloudDrizzle; // Shower rain
+    case '10': return CloudRain;   // Rain
+    case '11': return CloudLightning; // Thunderstorm
+    case '13': return CloudSnow;   // Snow
+    case '50': return CloudFog;    // Mist/Fog
+    default: return Cloud; // Fallback for unknown codes
   }
 };
 
 const WeatherIcon = ({ iconCode, className, altText }: { iconCode: string; className?: string; altText?: string }) => {
-  const IconComponent = getLucideIcon(iconCode || '03d');
+  const IconComponent = getLucideIcon(iconCode || '03d'); // Default to '03d' if iconCode is null/undefined
   return <IconComponent className={cn("h-8 w-8", className)} aria-label={altText || "Weather icon"} />;
 };
 
@@ -264,7 +266,7 @@ export function WeatherDisplay() {
           <div className="absolute inset-0 bg-black/50 flex flex-col justify-center items-center text-white p-6 text-center">
             <h1 className="text-3xl md:text-4xl font-bold">{locationName}</h1>
             <p className="text-lg md:text-xl capitalize">{current.condition}</p>
-            {location && <p className="text-xs mt-1">(Lat: {location.latitude.toFixed(2)}, Lon: {location.longitude.toFixed(2)})</p>}
+            {location && <p className="text-xs mt-1">(Lat: {location.latitude.toFixed(4)}, Lon: {location.longitude.toFixed(4)})</p>}
             <Button variant="outline" size="sm" onClick={() => location && fetchWeatherFromApi(location.latitude, location.longitude)} className="mt-4 bg-white/20 hover:bg-white/30 text-white border-white/50"><RotateCw className="mr-2 h-4 w-4" /> Refresh</Button>
           </div>
         </div>
@@ -355,4 +357,3 @@ export function WeatherDisplay() {
     </div>
   );
 }
-
