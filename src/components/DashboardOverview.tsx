@@ -3,7 +3,7 @@
 
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, CloudSun, TrendingUp, Bug, Lightbulb, BookText, BarChart3, FlaskConical, Loader2, AlertTriangle, MapPin, Sun, Moon, Cloudy, CloudDrizzle, CloudRain, CloudLightning, CloudSnow, CloudFog, Cloud } from "lucide-react";
+import { ArrowRight, CloudSun, TrendingUp, Bug, Lightbulb, BookText, BarChart3, FlaskConical, Loader2, AlertTriangle, MapPin, Sun, Moon, Cloudy, CloudDrizzle, CloudRain, CloudLightning, CloudSnow, CloudFog, Cloud, CloudMoon } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import type { WeatherData as ApiWeatherData } from "@/app/api/weather/route"; // Assuming this type is exported
