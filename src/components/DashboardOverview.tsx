@@ -3,32 +3,16 @@
 
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, CloudSun, TrendingUp, Bug, Lightbulb, BookText, BarChart3, FlaskConical, Loader2, AlertTriangle, MapPin, Sun, Moon, Cloudy, CloudDrizzle, CloudRain, CloudLightning, CloudSnow, CloudFog, Cloud, CloudMoon } from "lucide-react";
+import { 
+  ArrowRight, TrendingUp, Bug, Lightbulb, BookText, BarChart3, FlaskConical, 
+  Loader2, AlertTriangle, MapPin, CloudSun as DefaultWeatherIcon 
+} from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import type { WeatherData as ApiWeatherData } from "@/app/api/weather/route"; // Assuming this type is exported
+import type { WeatherData as ApiWeatherData } from "@/app/api/weather/route"; 
 import { useState, useEffect, useCallback } from "react";
 import { cn } from "@/lib/utils";
-
-
-// Helper function to map OpenWeatherMap icon codes to Lucide icons
-// (Copied from WeatherDisplay.tsx for use here)
-const getLucideIcon = (iconCode: string): React.ElementType => {
-  if (!iconCode) return Cloud;
-  const mainPart = iconCode.substring(0, 2);
-  switch (mainPart) {
-    case '01': return iconCode.endsWith('n') ? Moon : Sun;
-    case '02': return iconCode.endsWith('n') ? CloudMoon : CloudSun;
-    case '03': return Cloud;
-    case '04': return Cloudy;
-    case '09': return CloudDrizzle;
-    case '10': return CloudRain;
-    case '11': return CloudLightning;
-    case '13': return CloudSnow;
-    case '50': return CloudFog;
-    default: return Cloud;
-  }
-};
+import { getLucideIcon } from "@/lib/weatherUtils";
 
 
 const QuickActionCard = ({ title, description, href, icon: Icon, image, imageHint }: { title: string; description: string; href: string; icon: React.ElementType; image?: string, imageHint?: string }) => (
@@ -47,7 +31,7 @@ const QuickActionCard = ({ title, description, href, icon: Icon, image, imageHin
       )}
       <p className="text-sm text-muted-foreground mb-4">{description}</p>
     </CardContent>
-    <CardContent className="pt-0"> {/* Separate content for button to ensure it's at the bottom */}
+    <CardContent className="pt-0"> 
       <Link href={href} passHref>
         <Button variant="outline" size="sm" className="w-full group">
           Go to {title} <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
@@ -118,17 +102,15 @@ export function DashboardOverview() {
           if (status.state === 'granted') {
             handleLocationRequest();
           } else {
-            setIsWeatherLoading(false); // Not granted, stop loading
+            setIsWeatherLoading(false); 
             if (status.state === 'denied') {
               setWeatherError("Location access denied. Enable to see local weather.");
             }
           }
         } catch (e) {
-          // Fallback for browsers that don't support permissions.query well
           handleLocationRequest();
         }
       } else {
-        // Fallback for older browsers
         handleLocationRequest();
       }
     };
@@ -147,7 +129,7 @@ export function DashboardOverview() {
     icon: Bug,
   };
   
-  const WeatherSummaryIcon = weatherData?.current?.icon ? getLucideIcon(weatherData.current.icon) : CloudSun;
+  const WeatherSummaryIcon = weatherData?.current?.icon ? getLucideIcon(weatherData.current.icon) : DefaultWeatherIcon;
 
   return (
     <div className="space-y-6">
@@ -251,7 +233,7 @@ export function DashboardOverview() {
               title="Weather Insights"
               description="Get detailed local weather forecasts and air quality information."
               href="/weather"
-              icon={CloudSun}
+              icon={DefaultWeatherIcon} // Using DefaultWeatherIcon (CloudSun) as placeholder
               image="https://placehold.co/600x200.png"
               imageHint="weather forecast"
             />
@@ -276,4 +258,3 @@ export function DashboardOverview() {
     </div>
   );
 }
-

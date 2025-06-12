@@ -8,11 +8,12 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { 
-  Thermometer, Cloud, Umbrella, Wind, MapPin, Loader2, AlertTriangle, RotateCw, Clock, CalendarDays, Droplet,
-  Sun, Moon, CloudSun, CloudMoon, Cloudy, CloudDrizzle, CloudRain, CloudLightning, CloudSnow, CloudFog, Leaf, Gauge
+  Thermometer, Umbrella, Wind, MapPin, Loader2, AlertTriangle, RotateCw, Clock, CalendarDays, Droplet,
+  Leaf, Gauge
 } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { getLucideIcon } from "@/lib/weatherUtils";
 
 // Types to match what the API route will provide
 type WeatherCondition = {
@@ -63,25 +64,8 @@ type WeatherData = {
   airQuality?: AirQuality;
 };
 
-const getLucideIcon = (iconCode: string): React.ElementType => {
-  if (!iconCode) return Cloud; // Default icon
-  const mainPart = iconCode.substring(0, 2);
-  switch (mainPart) {
-    case '01': return iconCode.endsWith('n') ? Moon : Sun;
-    case '02': return iconCode.endsWith('n') ? CloudMoon : CloudSun;
-    case '03': return Cloud;
-    case '04': return Cloudy;
-    case '09': return CloudDrizzle; // Shower rain
-    case '10': return CloudRain;   // Rain
-    case '11': return CloudLightning; // Thunderstorm
-    case '13': return CloudSnow;   // Snow
-    case '50': return CloudFog;    // Mist/Fog
-    default: return Cloud; // Fallback for unknown codes
-  }
-};
-
 const WeatherIcon = ({ iconCode, className, altText }: { iconCode: string; className?: string; altText?: string }) => {
-  const IconComponent = getLucideIcon(iconCode || '03d'); // Default to '03d' if iconCode is null/undefined
+  const IconComponent = getLucideIcon(iconCode || '03d'); 
   return <IconComponent className={cn("h-8 w-8", className)} aria-label={altText || "Weather icon"} />;
 };
 
@@ -196,8 +180,8 @@ export function WeatherDisplay() {
               setIsLoading(false); setWeatherData(null); setError(null);
             }
           };
-        } catch (e) { handleLocationRequest(); } // Fallback
-      } else { handleLocationRequest(); } // Fallback
+        } catch (e) { handleLocationRequest(); } 
+      } else { handleLocationRequest(); } 
     };
     checkPermissionAndFetch();
   }, [handleLocationRequest]);
