@@ -43,8 +43,14 @@ const fontMono = Roboto_Mono({
 
 function AppSidebarContent() {
   const pathname = usePathname();
-  const { state: sidebarState } = useSidebar();
+  const { state: sidebarState, isMobile, setOpenMobile } = useSidebar();
   const isCollapsed = sidebarState === "collapsed";
+
+  const handleLinkClick = () => {
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  };
 
   return (
     <Sidebar collapsible="icon">
@@ -57,6 +63,7 @@ function AppSidebarContent() {
             <SidebarMenuItem key={item.href}>
               <Link href={item.href} legacyBehavior passHref>
                 <SidebarMenuButton
+                  onClick={handleLinkClick}
                   isActive={pathname === item.href || (pathname === '/' && item.href === '/')}
                   tooltip={{ children: item.label, side: 'right', align: 'center' }}
                 >
