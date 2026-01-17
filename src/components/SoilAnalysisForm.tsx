@@ -133,7 +133,7 @@ export function SoilAnalysisForm() {
     <div className="space-y-8">
       <Card className="shadow-xl">
         <CardHeader>
-          <CardTitle className="text-2xl font-bold flex items-center gap-2">
+          <CardTitle className="text-xl sm:text-2xl font-bold flex items-center gap-2">
             <FlaskConical className="h-6 w-6 text-primary" />
             AI Soil Report Analysis
           </CardTitle>
@@ -214,7 +214,7 @@ export function SoilAnalysisForm() {
       {analysisResult && !isLoading && (
         <Card className="shadow-xl bg-gradient-to-br from-card to-background">
           <CardHeader>
-            <CardTitle className="text-2xl font-semibold flex items-center gap-2">
+            <CardTitle className="text-xl sm:text-2xl font-semibold flex items-center gap-2">
               <CheckCircle2 className="h-7 w-7 text-green-500" />
               Soil Analysis Results
             </CardTitle>
@@ -222,7 +222,7 @@ export function SoilAnalysisForm() {
           <CardContent className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle className="text-xl flex items-center gap-2"><BookOpen className="h-5 w-5 text-primary" />Soil Report Summary</CardTitle>
+                <CardTitle className="text-lg sm:text-xl flex items-center gap-2"><BookOpen className="h-5 w-5 text-primary" />Soil Report Summary</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-foreground whitespace-pre-wrap">{analysisResult.soilAnalysisSummary || "No summary provided."}</p>
@@ -233,7 +233,7 @@ export function SoilAnalysisForm() {
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-xl flex items-center gap-2"><Leaf className="h-5 w-5 text-primary" />Suggested Crops (Current Soil)</CardTitle>
+                <CardTitle className="text-lg sm:text-xl flex items-center gap-2"><Leaf className="h-5 w-5 text-primary" />Suggested Crops (Current Soil)</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 {analysisResult.suggestedCrops && analysisResult.suggestedCrops.length > 0 ? (
@@ -275,7 +275,7 @@ export function SoilAnalysisForm() {
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-xl flex items-center gap-2"><TrendingUp className="h-5 w-5 text-primary" />High-Value Crop Options</CardTitle>
+                <CardTitle className="text-lg sm:text-xl flex items-center gap-2"><TrendingUp className="h-5 w-5 text-primary" />High-Value Crop Options</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                  {analysisResult.highValueCropOptions && analysisResult.highValueCropOptions.length > 0 ? (
@@ -321,4 +321,3 @@ export function SoilAnalysisForm() {
     </div>
   );
 }
-

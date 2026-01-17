@@ -187,7 +187,7 @@ export function CropNutrientGuide() {
           <div className="flex items-center gap-3">
             <Sprout className="h-8 w-8 text-primary" />
             <div>
-                <CardTitle className="text-2xl font-bold">Crop Nutrient Guide</CardTitle>
+                <CardTitle className="text-xl sm:text-2xl font-bold">Crop Nutrient Guide</CardTitle>
                 <CardDescription>Explore nutrient needs for various crops, vegetables, and herbs. (Illustrative Data)</CardDescription>
             </div>
           </div>
@@ -241,7 +241,7 @@ export function CropNutrientGuide() {
               )}
               <CardHeader>
                 <div className="flex justify-between items-start">
-                    <CardTitle className="text-xl">{crop.name}</CardTitle>
+                    <CardTitle className="text-lg sm:text-xl">{crop.name}</CardTitle>
                     <Badge variant="outline" className="flex items-center gap-1">
                         <TypeIcon type={crop.type} />
                         {crop.type}

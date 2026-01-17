@@ -55,7 +55,7 @@ export function ContractFarming() {
             <div className="flex items-center gap-4">
               <MapPin className="h-10 w-10 text-primary" />
               <div>
-                <CardTitle className="text-2xl">Lease Land & Start Farming</CardTitle>
+                <CardTitle className="text-xl sm:text-2xl">Lease Land & Start Farming</CardTitle>
                 <CardDescription>Turn your agricultural ambitions into reality.</CardDescription>
               </div>
             </div>
@@ -104,7 +104,7 @@ export function ContractFarming() {
              <div className="flex items-center gap-4">
               <Handshake className="h-10 w-10 text-primary" />
               <div>
-                <CardTitle className="text-2xl">Source with Confidence</CardTitle>
+                <CardTitle className="text-xl sm:text-2xl">Source with Confidence</CardTitle>
                 <CardDescription>A one-stop solution for FMCG & Food Businesses.</CardDescription>
               </div>
             </div>

@@ -173,7 +173,7 @@ export function EquipmentRental() {
           <div className="flex items-center gap-3">
             <Tractor className="h-8 w-8 text-primary" />
             <div>
-              <CardTitle className="text-2xl font-bold">Equipment Rental</CardTitle>
+              <CardTitle className="text-xl sm:text-2xl font-bold">Equipment Rental</CardTitle>
               <CardDescription>Find and book nearby agricultural equipment for rent.</CardDescription>
             </div>
           </div>
@@ -209,7 +209,7 @@ export function EquipmentRental() {
                     id="booking-date"
                     variant={"outline"}
                     className={cn(
-                      "w-[240px] justify-start text-left font-normal",
+                      "w-full sm:w-[240px] justify-start text-left font-normal",
                       !bookingDate && "text-muted-foreground"
                     )}
                   >
@@ -248,7 +248,7 @@ export function EquipmentRental() {
                 </Badge>
               </div>
               <CardHeader>
-                <CardTitle className="text-xl">{item.name}</CardTitle>
+                <CardTitle className="text-lg sm:text-xl">{item.name}</CardTitle>
                 <CardDescription>
                   <Badge variant="secondary" className="w-fit">{item.type}</Badge>
                 </CardDescription>
@@ -307,7 +307,7 @@ export function EquipmentRental() {
         <Card className="w-full max-w-lg p-6 text-center animate-in fade-in-50 zoom-in-95">
           <CardHeader className="pb-4">
             <CheckCircle2 className="h-16 w-16 text-green-500 mx-auto mb-4" />
-            <CardTitle className="text-3xl font-bold">Booking Confirmed!</CardTitle>
+            <CardTitle className="text-2xl sm:text-3xl font-bold">Booking Confirmed!</CardTitle>
             <CardDescription>Your request for the {selectedItem.name} has been accepted.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -343,7 +343,7 @@ export function EquipmentRental() {
           {selectedItem && (
             <>
               <DialogHeader>
-                <DialogTitle className="text-2xl">Confirm Your Booking</DialogTitle>
+                <DialogTitle className="text-xl sm:text-2xl">Confirm Your Booking</DialogTitle>
                 <DialogDescription>
                   Review the details below and confirm your request for the {selectedItem.name}.
                 </DialogDescription>
@@ -364,7 +364,7 @@ export function EquipmentRental() {
                     <p><strong className="text-muted-foreground">Price:</strong> ${selectedItem.hourlyRate} / hour</p>
                   </div>
               </div>
-              <DialogFooter className="sm:justify-between gap-2">
+              <DialogFooter className="flex-col sm:flex-row sm:justify-between gap-2">
                 <DialogClose asChild>
                   <Button type="button" variant="outline">
                     <XCircle className="mr-2 h-4 w-4" /> Cancel
@@ -381,5 +381,3 @@ export function EquipmentRental() {
     </div>
   );
 }
-
-    

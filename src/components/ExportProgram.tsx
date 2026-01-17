@@ -50,7 +50,7 @@ export function ExportProgram() {
       {/* How It Works Section */}
       <section>
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold">From Local Farms to Global Tables</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold">From Local Farms to Global Tables</h2>
           <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">
             Our program handles everything from quality assurance to international logistics, creating value for both farmers and buyers.
           </p>
@@ -97,7 +97,7 @@ export function ExportProgram() {
             <div className="flex items-center gap-4">
               <Sprout className="h-10 w-10 text-primary" />
               <div>
-                <CardTitle className="text-2xl">For Farmers: Go Global</CardTitle>
+                <CardTitle className="text-xl sm:text-2xl">For Farmers: Go Global</CardTitle>
                 <CardDescription>Expand your reach beyond local markets.</CardDescription>
               </div>
             </div>
@@ -146,7 +146,7 @@ export function ExportProgram() {
              <div className="flex items-center gap-4">
               <Handshake className="h-10 w-10 text-primary" />
               <div>
-                <CardTitle className="text-2xl">For Buyers & Exporters</CardTitle>
+                <CardTitle className="text-xl sm:text-2xl">For Buyers & Exporters</CardTitle>
                 <CardDescription>Source premium produce, simplified.</CardDescription>
               </div>
             </div>
@@ -195,7 +195,7 @@ export function ExportProgram() {
        <Card className="bg-gradient-to-r from-primary/80 to-accent/80 text-primary-foreground text-center p-8 shadow-xl">
          <CardHeader className="items-center">
             <TrendingUp className="h-12 w-12" />
-            <CardTitle className="text-3xl font-bold">A Strategic Investment in Agri-Tech</CardTitle>
+            <CardTitle className="text-2xl sm:text-3xl font-bold">A Strategic Investment in Agri-Tech</CardTitle>
             <CardDescription className="text-primary-foreground/80 text-lg max-w-2xl">
                 Our model creates a scalable, profitable, and impactful ecosystem for global agricultural trade, bridging the gap between local farmers and global demand.
             </CardDescription>

@@ -273,7 +273,7 @@ export function WeatherDisplay() {
 
       {hourly && hourly.length > 0 && (
         <Card className="shadow-lg">
-          <CardHeader><CardTitle className="flex items-center gap-2"><Clock className="h-5 w-5 text-primary" />3-Hourly Forecast (Next 24 Hours)</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="text-xl sm:text-2xl flex items-center gap-2"><Clock className="h-5 w-5 text-primary" />3-Hourly Forecast (Next 24 Hours)</CardTitle></CardHeader>
           <CardContent>
             <ScrollArea className="w-full whitespace-nowrap">
               <div className="flex space-x-4 pb-4">
@@ -295,7 +295,7 @@ export function WeatherDisplay() {
       
       {daily && daily.length > 0 && (
         <Card className="shadow-lg">
-          <CardHeader><CardTitle className="flex items-center gap-2"><CalendarDays className="h-5 w-5 text-primary" />5-Day Forecast</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="text-xl sm:text-2xl flex items-center gap-2"><CalendarDays className="h-5 w-5 text-primary" />5-Day Forecast</CardTitle></CardHeader>
           <CardContent className="space-y-3">
             {daily.map((item, index) => (
               <div key={index} className="flex items-center justify-between p-3 rounded-md bg-muted/30 hover:bg-muted/50 transition-colors">
@@ -318,7 +318,7 @@ export function WeatherDisplay() {
 
       {airQuality && (
         <Card className="shadow-lg">
-          <CardHeader><CardTitle className="flex items-center gap-2"><Leaf className="h-5 w-5 text-primary" />Air Quality Details</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="text-xl sm:text-2xl flex items-center gap-2"><Leaf className="h-5 w-5 text-primary" />Air Quality Details</CardTitle></CardHeader>
           <CardContent>
             <AQIIndicator aqi={airQuality.aqi} />
             <Separator className="my-4" />

@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, type FormEvent } from "react";
@@ -120,7 +121,7 @@ export function DiagnosisForm() {
     <div className="space-y-8">
       <Card className="shadow-xl">
         <CardHeader>
-          <CardTitle className="text-2xl font-bold flex items-center gap-2">
+          <CardTitle className="text-xl sm:text-2xl font-bold flex items-center gap-2">
             <Sparkles className="h-6 w-6 text-primary" />
             AI Crop Diagnosis
           </CardTitle>
@@ -204,7 +205,7 @@ export function DiagnosisForm() {
       {diagnosisResult && !isLoading && (
         <Card className="shadow-xl bg-gradient-to-br from-card to-background">
           <CardHeader>
-            <CardTitle className="text-2xl font-semibold flex items-center gap-2">
+            <CardTitle className="text-xl sm:text-2xl font-semibold flex items-center gap-2">
               <CheckCircle2 className="h-7 w-7 text-green-500" />
               Diagnosis Result
             </CardTitle>

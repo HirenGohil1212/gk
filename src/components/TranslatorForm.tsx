@@ -89,7 +89,7 @@ export function TranslatorForm() {
     <div className="space-y-8">
       <Card className="shadow-xl">
         <CardHeader>
-          <CardTitle className="text-2xl font-bold flex items-center gap-2">
+          <CardTitle className="text-xl sm:text-2xl font-bold flex items-center gap-2">
             <Languages className="h-6 w-6 text-primary" />
             Text Translator
           </CardTitle>
@@ -176,7 +176,7 @@ export function TranslatorForm() {
       {translationResult && !isLoading && (
         <Card className="shadow-xl bg-gradient-to-br from-card to-background">
           <CardHeader>
-            <CardTitle className="text-xl font-semibold flex items-center gap-2">
+            <CardTitle className="text-lg sm:text-xl font-semibold flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-primary" />
               Translated Text
             </CardTitle>

@@ -99,7 +99,7 @@ export function CropPriceTable() {
   return (
     <Card className="shadow-xl">
       <CardHeader>
-        <CardTitle className="text-2xl font-bold">Crop Market Prices</CardTitle>
+        <CardTitle className="text-xl sm:text-2xl font-bold">Crop Market Prices</CardTitle>
         <CardDescription>Browse current market data for various crops. (Data is currently illustrative)</CardDescription>
       </CardHeader>
       <CardContent>

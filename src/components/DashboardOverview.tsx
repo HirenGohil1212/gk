@@ -19,7 +19,7 @@ const QuickActionCard = ({ title, description, href, icon: Icon, image, imageHin
   <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col">
     <CardHeader className="flex flex-row items-start justify-between pb-2 space-y-0">
       <div className="space-y-1">
-        <CardTitle className="text-lg font-semibold">{title}</CardTitle>
+        <CardTitle className="text-base sm:text-lg font-semibold">{title}</CardTitle>
       </div>
       <Icon className="h-6 w-6 text-primary flex-shrink-0" />
     </CardHeader>
@@ -135,8 +135,8 @@ export function DashboardOverview() {
     <div className="space-y-6">
       <Card className="bg-gradient-to-br from-primary/80 to-primary text-primary-foreground p-6 rounded-lg shadow-xl">
         <CardHeader>
-          <CardTitle className="text-3xl font-bold">Welcome to GrowKrishi!</CardTitle>
-          <CardDescription className="text-primary-foreground/80 text-lg">
+          <CardTitle className="text-2xl sm:text-3xl font-bold">Welcome to GrowKrishi!</CardTitle>
+          <CardDescription className="text-primary-foreground/80 text-base sm:text-lg">
             Your all-in-one platform for smarter farming.
           </CardDescription>
         </CardHeader>
@@ -166,7 +166,7 @@ export function DashboardOverview() {
             )}
             {!isWeatherLoading && !weatherError && weatherData?.current && (
               <>
-                <div className="text-2xl font-bold">{weatherData.current.temp}°C</div>
+                <div className="text-xl sm:text-2xl font-bold">{weatherData.current.temp}°C</div>
                 <p className="text-xs text-muted-foreground capitalize">{weatherData.current.condition}</p>
                 <p className="text-xs text-muted-foreground">{weatherData.locationName}</p>
               </>
@@ -188,7 +188,7 @@ export function DashboardOverview() {
             <marketAlert.icon className="h-5 w-5 text-accent" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{marketAlert.crop}: <span className="text-green-500">{marketAlert.change}</span></div>
+            <div className="text-xl sm:text-2xl font-bold">{marketAlert.crop}: <span className="text-green-500">{marketAlert.change}</span></div>
             <p className="text-xs text-muted-foreground">Prices updated recently</p>
           </CardContent>
         </Card>
@@ -209,7 +209,7 @@ export function DashboardOverview() {
       
       <Card>
         <CardHeader>
-            <CardTitle className="text-xl">Quick Actions</CardTitle>
+            <CardTitle className="text-lg sm:text-xl">Quick Actions</CardTitle>
             <CardDescription>Access key features of GrowKrishi directly.</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
