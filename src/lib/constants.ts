@@ -55,6 +55,11 @@ export const NAV_ITEMS: NavItem[] = [
     label: 'Contract Farming',
     icon: Handshake,
   },
+  {
+    href: '/our-partners',
+    label: 'Our Partners',
+    icon: Users,
+  },
 ];
 
 export const APP_NAME = "GrowKrishi";
