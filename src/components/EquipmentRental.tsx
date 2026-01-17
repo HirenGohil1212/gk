@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -9,8 +9,12 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Search, Tractor, MapPin, DollarSign, Calendar as CalendarIcon, CheckCircle, XCircle } from "lucide-react";
+import { 
+  Search, Tractor, MapPin, DollarSign, Calendar as CalendarIcon, CheckCircle2, 
+  Loader2, Sparkles, ArrowLeft, XCircle, Info 
+} from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
@@ -106,11 +110,26 @@ const mockEquipmentData: Equipment[] = [
 
 const equipmentTypes = ["All", ...new Set(mockEquipmentData.map(e => e.type))];
 
+type BookingStep = 'idle' | 'confirming' | 'requesting' | 'confirmed';
+
 export function EquipmentRental() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedType, setSelectedType] = useState("All");
   const [bookingDate, setBookingDate] = useState<Date | undefined>(new Date());
   const { toast } = useToast();
+
+  const [step, setStep] = useState<BookingStep>('idle');
+  const [selectedItem, setSelectedItem] = useState<Equipment | null>(null);
+  const [otp, setOtp] = useState<string>("");
+
+  useEffect(() => {
+    // Reset if filters change during a booking process
+    if (step !== 'idle') {
+      setStep('idle');
+      setSelectedItem(null);
+    }
+  }, [searchTerm, selectedType, bookingDate]);
+
 
   const filteredEquipment = mockEquipmentData.filter(equipment => {
     return (
@@ -119,7 +138,7 @@ export function EquipmentRental() {
     );
   });
 
-  const handleBookNow = (equipment: Equipment) => {
+  const handleBookNowClick = (equipment: Equipment) => {
     if (equipment.status === 'Booked') {
       toast({
         variant: "destructive",
@@ -128,14 +147,27 @@ export function EquipmentRental() {
       });
       return;
     }
-    toast({
-      title: "Booking Request Sent!",
-      description: `The owner of ${equipment.name} has been notified of your request for ${format(bookingDate || new Date(), "PPP")}.`,
-    });
+    setSelectedItem(equipment);
+    setStep('confirming');
   };
 
-  return (
-    <div className="space-y-8">
+  const handleConfirmBooking = () => {
+    setStep('requesting');
+    setTimeout(() => {
+      const newOtp = Math.floor(1000 + Math.random() * 9000).toString();
+      setOtp(newOtp);
+      setStep('confirmed');
+    }, 3000); // Simulate a 3-second network request
+  };
+  
+  const handleResetFlow = () => {
+    setStep('idle');
+    setSelectedItem(null);
+    setOtp('');
+  };
+  
+  const renderIdleState = () => (
+    <>
       <Card className="shadow-xl">
         <CardHeader>
           <div className="flex items-center gap-3">
@@ -235,7 +267,7 @@ export function EquipmentRental() {
               <CardFooter>
                 <Button 
                   className="w-full" 
-                  onClick={() => handleBookNow(item)}
+                  onClick={() => handleBookNowClick(item)}
                   disabled={item.status === 'Booked'}
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
@@ -254,6 +286,100 @@ export function EquipmentRental() {
           </CardContent>
         </Card>
       )}
+    </>
+  );
+
+  if (step === 'requesting') {
+    return (
+      <div className="flex flex-col items-center justify-center h-full py-20">
+        <Card className="w-full max-w-md p-8 text-center animate-in fade-in-50 zoom-in-95">
+          <Loader2 className="h-16 w-16 text-primary animate-spin mx-auto mb-6" />
+          <CardTitle className="text-2xl font-bold mb-2">Sending Request</CardTitle>
+          <CardDescription>Contacting the equipment owner... Please wait.</CardDescription>
+        </Card>
+      </div>
+    );
+  }
+  
+  if (step === 'confirmed' && selectedItem) {
+    return (
+       <div className="flex flex-col items-center justify-center h-full py-10">
+        <Card className="w-full max-w-lg p-6 text-center animate-in fade-in-50 zoom-in-95">
+          <CardHeader className="pb-4">
+            <CheckCircle2 className="h-16 w-16 text-green-500 mx-auto mb-4" />
+            <CardTitle className="text-3xl font-bold">Booking Confirmed!</CardTitle>
+            <CardDescription>Your request for the {selectedItem.name} has been accepted.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="bg-muted rounded-lg p-4">
+              <p className="text-sm text-muted-foreground">Your One-Time Password (OTP) is:</p>
+              <p className="text-4xl font-bold tracking-widest text-primary py-2">{otp}</p>
+              <p className="text-xs text-muted-foreground">Share this OTP with the equipment owner to start your rental.</p>
+            </div>
+            <div className="text-left text-sm border-t pt-4">
+              <h4 className="font-semibold mb-2">Booking Details:</h4>
+              <p><strong className="text-muted-foreground">Equipment:</strong> {selectedItem.name}</p>
+              <p><strong className="text-muted-foreground">Date:</strong> {format(bookingDate || new Date(), "PPP")}</p>
+              <p><strong className="text-muted-foreground">Location:</strong> {selectedItem.location}</p>
+            </div>
+          </CardContent>
+          <CardFooter>
+            <Button className="w-full" onClick={handleResetFlow}>
+              <Sparkles className="mr-2 h-4 w-4" /> Done
+            </Button>
+          </CardFooter>
+        </Card>
+      </div>
+    );
+  }
+
+
+  return (
+    <div className="space-y-8">
+      {renderIdleState()}
+
+      <Dialog open={step === 'confirming'} onOpenChange={(isOpen) => !isOpen && handleResetFlow()}>
+        <DialogContent className="sm:max-w-[425px]">
+          {selectedItem && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="text-2xl">Confirm Your Booking</DialogTitle>
+                <DialogDescription>
+                  Review the details below and confirm your request for the {selectedItem.name}.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="py-4 space-y-4">
+                 <div className="relative h-48 w-full rounded-lg overflow-hidden">
+                    <Image
+                      src={selectedItem.imageUrl || ""}
+                      alt={selectedItem.name}
+                      layout="fill"
+                      objectFit="cover"
+                      data-ai-hint={selectedItem.imageHint || selectedItem.name.toLowerCase()}
+                    />
+                  </div>
+                  <div className="text-sm">
+                    <p><strong className="text-muted-foreground">Equipment:</strong> {selectedItem.name}</p>
+                    <p><strong className="text-muted-foreground">For Date:</strong> {format(bookingDate || new Date(), "PPP")}</p>
+                    <p><strong className="text-muted-foreground">Price:</strong> ${selectedItem.hourlyRate} / hour</p>
+                  </div>
+              </div>
+              <DialogFooter className="sm:justify-between gap-2">
+                <DialogClose asChild>
+                  <Button type="button" variant="outline">
+                    <XCircle className="mr-2 h-4 w-4" /> Cancel
+                  </Button>
+                </DialogClose>
+                <Button type="button" onClick={handleConfirmBooking}>
+                  <CheckCircle2 className="mr-2 h-4 w-4" /> Confirm & Request
+                </Button>
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
+
+    
