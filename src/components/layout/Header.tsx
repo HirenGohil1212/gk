@@ -4,7 +4,7 @@
 import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
-import { NAV_ITEMS } from "@/lib/constants";
+import { NAV_ITEMS, APP_NAME } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -53,7 +53,7 @@ export function Header() {
   const { isMobile } = useSidebar();
   const pathname = usePathname();
   const currentNavItem = NAV_ITEMS.find(item => item.href === pathname);
-  const pageTitle = currentNavItem ? currentNavItem.label : "AgriAssist";
+  const pageTitle = currentNavItem ? currentNavItem.label : APP_NAME;
 
   return (
     <header

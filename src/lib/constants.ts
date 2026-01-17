@@ -47,7 +47,7 @@ export const NAV_ITEMS: NavItem[] = [
   },
 ];
 
-export const APP_NAME = "AgriAssist";
+export const APP_NAME = "GrowKrishi";
 export const APP_ICON = Leaf;
 
 // UserRole enum, USER_ROLES_OPTIONS, and UserProfile type removed as auth module is disabled.

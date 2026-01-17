@@ -135,7 +135,7 @@ export function DashboardOverview() {
     <div className="space-y-6">
       <Card className="bg-gradient-to-br from-primary/80 to-primary text-primary-foreground p-6 rounded-lg shadow-xl">
         <CardHeader>
-          <CardTitle className="text-3xl font-bold">Welcome to AgriAssist!</CardTitle>
+          <CardTitle className="text-3xl font-bold">Welcome to GrowKrishi!</CardTitle>
           <CardDescription className="text-primary-foreground/80 text-lg">
             Your all-in-one platform for smarter farming.
           </CardDescription>
@@ -210,7 +210,7 @@ export function DashboardOverview() {
       <Card>
         <CardHeader>
             <CardTitle className="text-xl">Quick Actions</CardTitle>
-            <CardDescription>Access key features of AgriAssist directly.</CardDescription>
+            <CardDescription>Access key features of GrowKrishi directly.</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             <QuickActionCard
