@@ -14,6 +14,7 @@ import { Search, Tractor, MapPin, DollarSign, Calendar as CalendarIcon, CheckCir
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import { Label } from "@/components/ui/label";
 
 type Equipment = {
   id: string;
