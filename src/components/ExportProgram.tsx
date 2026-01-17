@@ -1,12 +1,14 @@
-
 "use client";
 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Award, DollarSign, Ship, Sprout, Handshake, ArrowRight, CheckCircle2, TrendingUp } from "lucide-react";
 import Image from "next/image";
+import { useToast } from "@/hooks/use-toast";
 
 export function ExportProgram() {
+  const { toast } = useToast();
+
   return (
     <div className="space-y-12">
       {/* Hero Section */}
@@ -108,7 +110,18 @@ export function ExportProgram() {
             </div>
           </CardContent>
           <CardFooter>
-             <Button className="w-full">Join Our Farmer Network <ArrowRight className="ml-2" /></Button>
+             <Button
+              className="w-full"
+              onClick={() => {
+                toast({
+                  title: "Feature Coming Soon",
+                  description:
+                    "The Farmer Network portal is under development. Stay tuned!",
+                });
+              }}
+            >
+              Join Our Farmer Network <ArrowRight className="ml-2" />
+            </Button>
           </CardFooter>
         </Card>
 
@@ -147,7 +160,19 @@ export function ExportProgram() {
             </div>
           </CardContent>
           <CardFooter>
-            <Button className="w-full" variant="secondary">Start Sourcing with Us <ArrowRight className="ml-2" /></Button>
+            <Button
+              className="w-full"
+              variant="secondary"
+              onClick={() => {
+                toast({
+                  title: "Get in Touch!",
+                  description:
+                    "Our buyer portal is launching soon. Contact us at buy@growkrishi.example.com for early access.",
+                });
+              }}
+            >
+              Start Sourcing with Us <ArrowRight className="ml-2" />
+            </Button>
           </CardFooter>
         </Card>
       </div>
@@ -162,8 +187,18 @@ export function ExportProgram() {
             </CardDescription>
          </CardHeader>
          <CardContent>
-            <Button variant="outline" className="bg-transparent text-white hover:bg-white hover:text-primary border-white">
-                Partner With Us
+            <Button
+              variant="outline"
+              className="bg-transparent text-white hover:bg-white hover:text-primary border-white"
+              onClick={() => {
+                toast({
+                  title: "Let's Collaborate",
+                  description:
+                    "We're excited to discuss partnership opportunities. Please reach out to partners@growkrishi.example.com.",
+                });
+              }}
+            >
+              Partner With Us
             </Button>
          </CardContent>
        </Card>
