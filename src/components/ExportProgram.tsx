@@ -1,13 +1,28 @@
 "use client";
 
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Award, DollarSign, Ship, Sprout, Handshake, ArrowRight, CheckCircle2, TrendingUp } from "lucide-react";
 import Image from "next/image";
-import { useToast } from "@/hooks/use-toast";
 
 export function ExportProgram() {
-  const { toast } = useToast();
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const [alertContent, setAlertContent] = useState({ title: "", description: "" });
+
+  const handleButtonClick = (title: string, description: string) => {
+    setAlertContent({ title, description });
+    setIsAlertOpen(true);
+  };
 
   return (
     <div className="space-y-12">
@@ -112,13 +127,12 @@ export function ExportProgram() {
           <CardFooter>
              <Button
               className="w-full"
-              onClick={() => {
-                toast({
-                  title: "Feature Coming Soon",
-                  description:
-                    "The Farmer Network portal is under development. Stay tuned!",
-                });
-              }}
+              onClick={() =>
+                handleButtonClick(
+                  "Feature Coming Soon",
+                  "The Farmer Network portal is under development. Stay tuned!"
+                )
+              }
             >
               Join Our Farmer Network <ArrowRight className="ml-2" />
             </Button>
@@ -163,13 +177,12 @@ export function ExportProgram() {
             <Button
               className="w-full"
               variant="secondary"
-              onClick={() => {
-                toast({
-                  title: "Get in Touch!",
-                  description:
-                    "Our buyer portal is launching soon. Contact us at buy@growkrishi.example.com for early access.",
-                });
-              }}
+              onClick={() =>
+                handleButtonClick(
+                  "Get in Touch!",
+                  "Our buyer portal is launching soon. Contact us at buy@growkrishi.example.com for early access."
+                )
+              }
             >
               Start Sourcing with Us <ArrowRight className="ml-2" />
             </Button>
@@ -190,19 +203,31 @@ export function ExportProgram() {
             <Button
               variant="outline"
               className="bg-transparent text-white hover:bg-white hover:text-primary border-white"
-              onClick={() => {
-                toast({
-                  title: "Let's Collaborate",
-                  description:
-                    "We're excited to discuss partnership opportunities. Please reach out to partners@growkrishi.example.com.",
-                });
-              }}
+              onClick={() =>
+                handleButtonClick(
+                  "Let's Collaborate",
+                  "We're excited to discuss partnership opportunities. Please reach out to partners@growkrishi.example.com."
+                )
+              }
             >
               Partner With Us
             </Button>
          </CardContent>
        </Card>
 
+      <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{alertContent.title}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {alertContent.description}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction>OK</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
