@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -180,7 +181,7 @@ export function ExportProgram() {
               onClick={() =>
                 handleButtonClick(
                   "Get in Touch!",
-                  "Our buyer portal is launching soon. Contact us at buy@growkrishi.example.com for early access."
+                  "Our buyer portal is launching soon. Please check back later for early access."
                 )
               }
             >
@@ -206,7 +207,7 @@ export function ExportProgram() {
               onClick={() =>
                 handleButtonClick(
                   "Let's Collaborate",
-                  "We're excited to discuss partnership opportunities. Please reach out to partners@growkrishi.example.com."
+                  "We're excited to discuss partnership opportunities. Please check back for contact information."
                 )
               }
             >
