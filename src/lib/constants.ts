@@ -1,6 +1,6 @@
 
 import type { LucideIcon } from 'lucide-react';
-import { LayoutDashboard, Stethoscope, CloudSun, BarChart3, BookText, Leaf, FlaskConical, Users, ShieldCheck, Sprout } from 'lucide-react';
+import { LayoutDashboard, Stethoscope, CloudSun, BarChart3, BookText, Leaf, FlaskConical, Users, ShieldCheck, Sprout, Tractor } from 'lucide-react';
 
 export type NavItem = {
   href: string;
@@ -44,6 +44,11 @@ export const NAV_ITEMS: NavItem[] = [
     href: '/resources',
     label: 'Resource Directory',
     icon: BookText,
+  },
+  {
+    href: '/equipment-rental',
+    label: 'Equipment Rental',
+    icon: Tractor,
   },
 ];
 
