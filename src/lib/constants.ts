@@ -41,11 +41,6 @@ export const NAV_ITEMS: NavItem[] = [
     icon: Sprout,
   },
   {
-    href: '/resources',
-    label: 'Resource Directory',
-    icon: BookText,
-  },
-  {
     href: '/equipment-rental',
     label: 'Equipment Rental',
     icon: Tractor,

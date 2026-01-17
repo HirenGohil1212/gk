@@ -245,14 +245,6 @@ export function DashboardOverview() {
               image="https://placehold.co/600x200.png"
               imageHint="market chart graph"
             />
-            <QuickActionCard
-              title="Resource Directory"
-              description="Find local suppliers, services, and agricultural resources."
-              href="/resources"
-              icon={BookText}
-              image="https://placehold.co/600x200.png"
-              imageHint="farm supplies"
-            />
         </CardContent>
       </Card>
     </div>
