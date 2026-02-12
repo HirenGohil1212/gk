@@ -1,6 +1,6 @@
 
 import type { LucideIcon } from 'lucide-react';
-import { LayoutDashboard, Stethoscope, CloudSun, BarChart3, BookText, Leaf, FlaskConical, Users, ShieldCheck, Sprout, Tractor, Globe, Handshake } from 'lucide-react';
+import { LayoutDashboard, Stethoscope, CloudSun, BarChart3, BookText, Leaf, FlaskConical, Users, ShieldCheck, Sprout, Tractor, Globe, Handshake, ClipboardCheck } from 'lucide-react';
 
 export type NavItem = {
   href: string;
@@ -24,6 +24,11 @@ export const NAV_ITEMS: NavItem[] = [
     href: '/soil-analysis',
     label: 'Soil Analysis',
     icon: FlaskConical,
+  },
+  {
+    href: '/soil-testing',
+    label: 'Book Soil Testing',
+    icon: ClipboardCheck,
   },
   {
     href: '/weather',
