@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -152,7 +151,7 @@ export function CropPriceTable() {
               <TableHead className="w-[100px]">Icon</TableHead>
               <TableHead>Crop Name</TableHead>
               <TableHead>Category</TableHead>
-              <TableHead className="text-right">Price ($/unit)</TableHead>
+              <TableHead className="text-right">Price (₹/unit)</TableHead>
               <TableHead className="text-right">Change (24h)</TableHead>
               <TableHead>Market</TableHead>
               <TableHead>Last Updated</TableHead>
@@ -169,7 +168,7 @@ export function CropPriceTable() {
                 </TableCell>
                 <TableCell className="font-medium">{crop.name}</TableCell>
                 <TableCell>{crop.category}</TableCell>
-                <TableCell className="text-right">${crop.price.toFixed(2)}</TableCell>
+                <TableCell className="text-right">₹{crop.price.toFixed(2)}</TableCell>
                 <TableCell className={`text-right flex items-center justify-end gap-1 ${crop.change24h > 0 ? 'text-green-600' : crop.change24h < 0 ? 'text-destructive' : 'text-muted-foreground'}`}>
                   <PriceChangeIndicator change={crop.change24h} />
                   {crop.change24h.toFixed(1)}%

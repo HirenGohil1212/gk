@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -12,7 +11,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { 
-  Search, FlaskConical, MapPin, DollarSign, Calendar as CalendarIcon, CheckCircle2, 
+  Search, FlaskConical, MapPin, IndianRupee, Calendar as CalendarIcon, CheckCircle2, 
   Loader2, Sparkles, XCircle, ClipboardCheck
 } from "lucide-react";
 import Image from "next/image";
@@ -234,8 +233,8 @@ export function SoilTestingSchedule() {
                   <span>{lab.location} ({lab.distance})</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
-                  <DollarSign className="h-4 w-4 text-primary shrink-0" />
-                  <span className="font-semibold text-lg">${lab.price} / sample</span>
+                  <IndianRupee className="h-4 w-4 text-primary shrink-0" />
+                  <span className="font-semibold text-lg">₹{lab.price} / sample</span>
                 </div>
               </CardContent>
               <CardFooter>
@@ -335,7 +334,7 @@ export function SoilTestingSchedule() {
                   <div className="text-sm">
                     <p><strong className="text-muted-foreground">Lab:</strong> {selectedLab.name}</p>
                     <p><strong className="text-muted-foreground">For Date:</strong> {format(bookingDate || new Date(), "PPP")}</p>
-                    <p><strong className="text-muted-foreground">Price:</strong> ${selectedLab.price} / sample</p>
+                    <p><strong className="text-muted-foreground">Price:</strong> ₹{selectedLab.price} / sample</p>
                   </div>
               </div>
               <DialogFooter className="flex-col sm:flex-row sm:justify-between gap-2">

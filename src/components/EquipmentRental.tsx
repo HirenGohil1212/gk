@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -12,7 +11,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { 
-  Search, Tractor, MapPin, DollarSign, Calendar as CalendarIcon, CheckCircle2, 
+  Search, Tractor, MapPin, IndianRupee, Calendar as CalendarIcon, CheckCircle2, 
   Loader2, Sparkles, ArrowLeft, XCircle, Info 
 } from "lucide-react";
 import Image from "next/image";
@@ -260,8 +259,8 @@ export function EquipmentRental() {
                   <span>{item.location} ({item.distance})</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
-                  <DollarSign className="h-4 w-4 text-primary shrink-0" />
-                  <span className="font-semibold text-lg">${item.hourlyRate} / hour</span>
+                  <IndianRupee className="h-4 w-4 text-primary shrink-0" />
+                  <span className="font-semibold text-lg">₹{item.hourlyRate} / hour</span>
                 </div>
               </CardContent>
               <CardFooter>
@@ -361,7 +360,7 @@ export function EquipmentRental() {
                   <div className="text-sm">
                     <p><strong className="text-muted-foreground">Equipment:</strong> {selectedItem.name}</p>
                     <p><strong className="text-muted-foreground">For Date:</strong> {format(bookingDate || new Date(), "PPP")}</p>
-                    <p><strong className="text-muted-foreground">Price:</strong> ${selectedItem.hourlyRate} / hour</p>
+                    <p><strong className="text-muted-foreground">Price:</strong> ₹{selectedItem.hourlyRate} / hour</p>
                   </div>
               </div>
               <DialogFooter className="flex-col sm:flex-row sm:justify-between gap-2">

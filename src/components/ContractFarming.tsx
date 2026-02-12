@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -13,7 +12,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Award, DollarSign, MapPin, Sprout, Handshake, ArrowRight, CheckCircle2, Crosshair } from "lucide-react";
+import { Award, IndianRupee, MapPin, Sprout, Handshake, ArrowRight, CheckCircle2, Crosshair } from "lucide-react";
 import Image from "next/image";
 
 export function ContractFarming() {
@@ -125,7 +124,7 @@ export function ContractFarming() {
                 </div>
             </div>
             <div className="flex items-start gap-3">
-                <DollarSign className="h-5 w-5 text-green-500 mt-1 shrink-0" />
+                <IndianRupee className="h-5 w-5 text-green-500 mt-1 shrink-0" />
                 <div>
                     <h4 className="font-semibold">Fair & Stable Pricing</h4>
                     <p className="text-sm text-muted-foreground">Reduce intermediaries to lock in fair prices and build a stable, direct-from-farm supply chain.</p>

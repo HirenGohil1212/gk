@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -13,7 +12,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Award, DollarSign, Ship, Sprout, Handshake, ArrowRight, CheckCircle2, TrendingUp } from "lucide-react";
+import { Award, IndianRupee, Ship, Sprout, Handshake, ArrowRight, CheckCircle2, TrendingUp } from "lucide-react";
 import Image from "next/image";
 
 export function ExportProgram() {
@@ -69,7 +68,7 @@ export function ExportProgram() {
 
           <Card className="text-center">
             <CardHeader>
-              <DollarSign className="h-12 w-12 mx-auto text-primary" />
+              <IndianRupee className="h-12 w-12 mx-auto text-primary" />
               <CardTitle>2. Fair & Transparent Pricing</CardTitle>
             </CardHeader>
             <CardContent>
