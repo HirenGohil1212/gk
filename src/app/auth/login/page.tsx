@@ -1,19 +1,38 @@
+"use client";
 
-// This page is temporarily stubbed out as authentication is disabled.
-// You may want to delete this file and its parent directory.
+import { LoginForm } from "@/components/auth/LoginForm";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
+import { useAuth } from "@/contexts/AuthContext";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function LoginPage() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && user) {
+      router.push('/');
+    }
+  }, [user, loading, router]);
+
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md shadow-xl">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold">Login Disabled</CardTitle>
-          <CardDescription>Login functionality is temporarily unavailable.</CardDescription>
+          <CardTitle className="text-2xl font-bold">Welcome Back</CardTitle>
+          <CardDescription>Sign in to access your dashboard</CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-center">Please return to the <Link href="/" className="text-primary hover:underline">Dashboard</Link>.</p>
+          <LoginForm />
+          <div className="mt-4 text-center text-sm">
+            Don&apos;t have an account?{" "}
+            <Link href="/auth/register" className="text-primary hover:underline">
+              Register here
+            </Link>
+          </div>
         </CardContent>
       </Card>
     </div>

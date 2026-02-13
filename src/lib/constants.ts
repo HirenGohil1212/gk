@@ -1,6 +1,6 @@
-
 import type { LucideIcon } from 'lucide-react';
-import { LayoutDashboard, Stethoscope, CloudSun, BarChart3, BookText, Leaf, FlaskConical, Users, ShieldCheck, Sprout, Tractor, Globe, Handshake, ClipboardCheck } from 'lucide-react';
+import { LayoutDashboard, Stethoscope, CloudSun, BarChart3, Sprout, Tractor, Globe, Handshake, Users, FlaskConical, ClipboardCheck } from 'lucide-react';
+import { type Timestamp } from 'firebase/firestore';
 
 export type NavItem = {
   href: string;
@@ -25,7 +25,7 @@ export const NAV_ITEMS: NavItem[] = [
     label: 'Soil Analysis',
     icon: FlaskConical,
   },
-  {
+   {
     href: '/soil-testing',
     label: 'Book Soil Testing',
     icon: ClipboardCheck,
@@ -50,7 +50,7 @@ export const NAV_ITEMS: NavItem[] = [
     label: 'Equipment Rental',
     icon: Tractor,
   },
-  {
+   {
     href: '/export-program',
     label: 'Export Program',
     icon: Globe,
@@ -68,29 +68,25 @@ export const NAV_ITEMS: NavItem[] = [
 ];
 
 export const APP_NAME = "GrowKrishi";
-export const APP_ICON = Leaf;
+export const APP_ICON = Sprout;
 
-// UserRole enum, USER_ROLES_OPTIONS, and UserProfile type removed as auth module is disabled.
-// export enum UserRole {
-//   Farmer = "Farmer",
-//   Supplier = "Supplier",
-//   SoilTestLab = "Soil Test Lab",
-//   DroneCompany = "Drone Company",
-//   Admin = "Admin",
-// }
+export enum LandArea {
+    LESS_THAN_5 = 'LESS_THAN_5',
+    BETWEEN_5_AND_10 = 'BETWEEN_5_AND_10',
+    MORE_THAN_10 = 'MORE_THAN_10',
+}
 
-// export const USER_ROLES_OPTIONS = [
-//   { value: UserRole.Farmer, label: "Farmer" },
-//   { value: UserRole.Supplier, label: "Supplier" },
-//   { value: UserRole.SoilTestLab, label: "Soil Test Lab" },
-//   { value: UserRole.DroneCompany, label: "Drone Company" },
-//   { value: UserRole.Admin, label: "Administrator" },
-// ];
+export const LAND_AREA_OPTIONS = [
+    { value: LandArea.LESS_THAN_5, label: "< 5 Hectares" },
+    { value: LandArea.BETWEEN_5_AND_10, label: "> 5 Hectares" },
+    { value: LandArea.MORE_THAN_10, label: "> 10 Hectares" },
+];
 
-// export type UserProfile = {
-//   uid: string;
-//   email: string | null;
-//   role: UserRole;
-//   displayName?: string;
-//   createdAt: any; // Firestore Timestamp
-// };
+export type UserProfile = {
+  uid: string;
+  email: string;
+  name: string;
+  village: string;
+  landArea: LandArea;
+  createdAt: Timestamp;
+};

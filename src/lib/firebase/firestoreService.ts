@@ -1,28 +1,42 @@
-
-import { type Timestamp } from "firebase/firestore";
-// import { db } from "@/lib/firebaseConfig"; // Firebase config might not be needed if auth is fully removed
-// import type { UserRole } from "@/lib/constants"; // UserRole removed
+import { doc, setDoc, getDoc, serverTimestamp, type DocumentData, type Timestamp } from "firebase/firestore";
+import { db } from "@/lib/firebaseConfig";
+import type { LandArea } from "@/lib/constants";
 
 export interface UserProfileData {
+  uid: string;
   email: string;
-  // role: UserRole; // UserRole removed
-  displayName?: string;
+  name: string;
+  village: string;
+  landArea: LandArea;
 }
 
 export interface UserProfileDocument extends UserProfileData {
-  uid: string;
   createdAt: Timestamp;
 }
 
 export const createUserProfile = async (uid: string, data: UserProfileData): Promise<void> => {
-  console.warn("FirestoreService: createUserProfile called but auth is disabled.");
-  // In a real scenario where Firestore is still used for other things,
-  // you might keep the db import and actual Firestore logic.
-  // For now, this is a no-op.
-  return Promise.resolve();
+  const userProfileRef = doc(db, "users", uid);
+  try {
+    await setDoc(userProfileRef, {
+      ...data,
+      createdAt: serverTimestamp(),
+    });
+  } catch (error: any) {
+     throw new Error(error.message || "Could not create user profile.");
+  }
 };
 
-export const getUserProfile = async (uid: string): Promise<UserProfileData | null> => {
-  console.warn("FirestoreService: getUserProfile called but auth is disabled.");
-  return Promise.resolve(null);
+export const getUserProfile = async (uid: string): Promise<UserProfileDocument | null> => {
+  const userProfileRef = doc(db, "users", uid);
+  try {
+    const docSnap = await getDoc(userProfileRef);
+    if (docSnap.exists()) {
+      return docSnap.data() as UserProfileDocument;
+    } else {
+      console.warn(`No user profile found for UID: ${uid}`);
+      return null;
+    }
+  } catch (error: any) {
+     throw new Error(error.message || "Could not retrieve user profile.");
+  }
 };
