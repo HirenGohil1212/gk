@@ -2,7 +2,6 @@
 "use client";
 
 import { useMemo, useEffect } from 'react';
-import type { Metadata } from 'next';
 import { Inter, Roboto_Mono } from 'next/font/google';
 import './globals.css';
 import { cn } from '@/lib/utils';
@@ -118,13 +117,13 @@ function AppSidebarContent() {
   };
 
   const landAreaAccess: Record<LandArea, string[]> = {
-    [LandArea.LESS_THAN_5]: ['/dashboard', '/diagnosis', '/soil-analysis', '/weather', '/pricing', '/crop-guide'],
-    [LandArea.BETWEEN_5_AND_10]: ['/dashboard', '/diagnosis', '/soil-analysis', '/weather', '/pricing', '/crop-guide', '/soil-testing', '/equipment-rental'],
-    [LandArea.MORE_THAN_10]: ['/dashboard', '/diagnosis', '/soil-analysis', '/weather', '/pricing', '/crop-guide', '/soil-testing', '/equipment-rental', '/export-program', '/contract-farming', '/our-partners'],
+    [LandArea.LESS_THAN_5]: ['/', '/diagnosis', '/soil-analysis', '/weather', '/pricing', '/crop-guide'],
+    [LandArea.BETWEEN_5_AND_10]: ['/', '/diagnosis', '/soil-analysis', '/weather', '/pricing', '/crop-guide', '/soil-testing', '/equipment-rental'],
+    [LandArea.MORE_THAN_10]: ['/', '/diagnosis', '/soil-analysis', '/weather', '/pricing', '/crop-guide', '/soil-testing', '/equipment-rental', '/export-program', '/contract-farming', '/our-partners'],
   };
 
   const accessibleNavItems = useMemo(() => {
-    if (!userProfile) return NAV_ITEMS.filter(item => item.href === '/');
+    if (!userProfile) return [];
     const allowedHrefs = landAreaAccess[userProfile.landArea as LandArea] || [];
     return NAV_ITEMS.filter(item => allowedHrefs.includes(item.href));
   }, [userProfile]);
@@ -167,12 +166,12 @@ function MainContent({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (loading) return;
 
-    const isPublicPage = pathname === '/' || pathname.startsWith('/auth');
+    const isAuthPage = pathname.startsWith('/auth');
 
-    if (!user && !isPublicPage) {
+    if (!user && !isAuthPage) {
       router.push('/auth/login');
-    } else if (user && pathname.startsWith('/auth')) {
-      router.push('/dashboard');
+    } else if (user && isAuthPage) {
+      router.push('/');
     }
   }, [user, loading, pathname, router]);
 
@@ -184,8 +183,8 @@ function MainContent({ children }: { children: React.ReactNode }) {
     );
   }
 
-  // Show full layout for authenticated users, or for everyone on the landing page/auth pages but hide sidebar if not logged in
-  const showSidebar = user && pathname !== '/';
+  const isAuthPage = pathname.startsWith('/auth');
+  const showSidebar = !!user && !isAuthPage;
 
   if (!showSidebar) {
     return <div className="min-h-screen bg-background p-4 sm:p-6">{children}</div>;

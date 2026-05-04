@@ -1,6 +1,6 @@
 
 import type { LucideIcon } from 'lucide-react';
-import { Home, LayoutDashboard, Stethoscope, CloudSun, BarChart3, Sprout, Tractor, Globe, Handshake, Users, FlaskConical, ClipboardCheck } from 'lucide-react';
+import { LayoutDashboard, Stethoscope, CloudSun, BarChart3, Sprout, Tractor, Globe, Handshake, Users, FlaskConical, ClipboardCheck } from 'lucide-react';
 import { type Timestamp } from 'firebase/firestore';
 
 export type NavItem = {
@@ -13,11 +13,6 @@ export type NavItem = {
 export const NAV_ITEMS: NavItem[] = [
   {
     href: '/',
-    label: 'Home',
-    icon: Home,
-  },
-  {
-    href: '/dashboard',
     label: 'Dashboard',
     icon: LayoutDashboard,
   },
