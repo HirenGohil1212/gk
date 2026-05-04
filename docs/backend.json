@@ -1,8 +1,9 @@
+
 {
   "entities": {
     "UserProfile": {
       "title": "User Profile",
-      "description": "Represents a user's profile in the system.",
+      "description": "Represents a farmer's profile in the system.",
       "type": "object",
       "properties": {
         "uid": {
@@ -16,15 +17,15 @@
         },
         "name": {
           "type": "string",
-          "description": "The user's full name."
+          "description": "The farmer's full name."
         },
         "village": {
           "type": "string",
-          "description": "The user's village."
+          "description": "The farmer's village."
         },
         "landArea": {
           "type": "string",
-          "description": "The user's land area in hectares.",
+          "description": "The farmer's land area category.",
           "enum": ["LESS_THAN_5", "BETWEEN_5_AND_10", "MORE_THAN_10"]
         },
         "createdAt": {
