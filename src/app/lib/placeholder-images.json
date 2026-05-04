@@ -1,0 +1,24 @@
+
+{
+  "hero": {
+    "url": "https://picsum.photos/seed/agriculture1/1200/800",
+    "width": 1200,
+    "height": 800,
+    "alt": "Agricultural fields at sunrise",
+    "hint": "agriculture landscape"
+  },
+  "diagnosis": {
+    "url": "https://picsum.photos/seed/diagnosis/600/400",
+    "width": 600,
+    "height": 400,
+    "alt": "Pest on leaf",
+    "hint": "crop pest"
+  },
+  "soil": {
+    "url": "https://picsum.photos/seed/soil/600/400",
+    "width": 600,
+    "height": 400,
+    "alt": "Soil report analysis",
+    "hint": "soil science"
+  }
+}
