@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useMemo, useEffect } from 'react';
@@ -16,20 +17,17 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarInset,
-  SidebarTrigger,
   useSidebar,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
 } from '@/components/ui/sidebar';
 import { AppLogo } from '@/components/AppLogo';
-import { NAV_ITEMS, APP_NAME, LandArea, UserProfile } from '@/lib/constants';
+import { NAV_ITEMS, LandArea } from '@/lib/constants';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Toaster } from '@/components/ui/toaster';
 import { Header } from '@/components/layout/Header';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { LogOut, User as UserIcon, Loader2 } from 'lucide-react';
+import { LogOut, Loader2 } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -49,18 +47,13 @@ const fontMono = Roboto_Mono({
   variable: '--font-mono',
 });
 
-// export const metadata: Metadata = {
-//   title: APP_NAME,
-//   description: 'Your helpful agritech assistant.',
-// };
-
 function UserMenu() {
   const { user, userProfile, logout, loading } = useAuth();
   const { state: sidebarState } = useSidebar();
   const isCollapsed = sidebarState === 'collapsed';
 
   if (loading) {
-    return null; // Don't show anything while loading
+    return null;
   }
 
   if (!user || !userProfile) {
@@ -112,7 +105,6 @@ function UserMenu() {
   );
 }
 
-
 function AppSidebarContent() {
   const pathname = usePathname();
   const { state: sidebarState, isMobile, setOpenMobile } = useSidebar();
@@ -126,13 +118,13 @@ function AppSidebarContent() {
   };
 
   const landAreaAccess: Record<LandArea, string[]> = {
-    [LandArea.LESS_THAN_5]: ['/', '/diagnosis', '/soil-analysis', '/weather', '/pricing', '/crop-guide'],
-    [LandArea.BETWEEN_5_AND_10]: ['/', '/diagnosis', '/soil-analysis', '/weather', '/pricing', '/crop-guide', '/soil-testing', '/equipment-rental'],
-    [LandArea.MORE_THAN_10]: ['/', '/diagnosis', '/soil-analysis', '/weather', '/pricing', '/crop-guide', '/soil-testing', '/equipment-rental', '/export-program', '/contract-farming', '/our-partners'],
+    [LandArea.LESS_THAN_5]: ['/dashboard', '/diagnosis', '/soil-analysis', '/weather', '/pricing', '/crop-guide'],
+    [LandArea.BETWEEN_5_AND_10]: ['/dashboard', '/diagnosis', '/soil-analysis', '/weather', '/pricing', '/crop-guide', '/soil-testing', '/equipment-rental'],
+    [LandArea.MORE_THAN_10]: ['/dashboard', '/diagnosis', '/soil-analysis', '/weather', '/pricing', '/crop-guide', '/soil-testing', '/equipment-rental', '/export-program', '/contract-farming', '/our-partners'],
   };
 
   const accessibleNavItems = useMemo(() => {
-    if (!userProfile) return NAV_ITEMS; // Show all if not logged in or profile not loaded
+    if (!userProfile) return NAV_ITEMS.filter(item => item.href === '/');
     const allowedHrefs = landAreaAccess[userProfile.landArea as LandArea] || [];
     return NAV_ITEMS.filter(item => allowedHrefs.includes(item.href));
   }, [userProfile]);
@@ -149,7 +141,7 @@ function AppSidebarContent() {
               <Link href={item.href} legacyBehavior passHref>
                 <SidebarMenuButton
                   onClick={handleLinkClick}
-                  isActive={pathname === item.href || (pathname === '/' && item.href === '/')}
+                  isActive={pathname === item.href}
                   tooltip={{ children: item.label, side: 'right', align: 'center' }}
                 >
                   <item.icon />
@@ -173,44 +165,43 @@ function MainContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   useEffect(() => {
-    if (loading) return; // Wait until loading is finished
+    if (loading) return;
 
-    const isAuthPage = pathname.startsWith('/auth');
+    const isPublicPage = pathname === '/' || pathname.startsWith('/auth');
 
-    if (!user && !isAuthPage) {
+    if (!user && !isPublicPage) {
       router.push('/auth/login');
-    } else if (user && isAuthPage) {
-      router.push('/');
+    } else if (user && pathname.startsWith('/auth')) {
+      router.push('/dashboard');
     }
   }, [user, loading, pathname, router]);
 
-  if (loading || (!user && !pathname.startsWith('/auth'))) {
+  if (loading) {
     return (
       <div className="flex h-screen w-screen items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
-  
-  if (!user && pathname.startsWith('/auth')) {
-    return <>{children}</>;
+
+  // Show full layout for authenticated users, or for everyone on the landing page/auth pages but hide sidebar if not logged in
+  const showSidebar = user && pathname !== '/';
+
+  if (!showSidebar) {
+    return <div className="min-h-screen bg-background p-4 sm:p-6">{children}</div>;
   }
 
-  if (user) {
-    return (
-      <SidebarProvider defaultOpen={true}>
-        <AppSidebarContent />
-        <SidebarInset>
-          <Header />
-          <main className="flex-1 p-4 sm:px-6 sm:py-0 md:gap-8">
-            {children}
-          </main>
-        </SidebarInset>
-      </SidebarProvider>
-    );
-  }
-
-  return null;
+  return (
+    <SidebarProvider defaultOpen={true}>
+      <AppSidebarContent />
+      <SidebarInset>
+        <Header />
+        <main className="flex-1 p-4 sm:px-6 sm:py-0 md:gap-8">
+          {children}
+        </main>
+      </SidebarInset>
+    </SidebarProvider>
+  );
 }
 
 export default function RootLayout({

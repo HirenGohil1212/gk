@@ -1,5 +1,6 @@
+
 import type { LucideIcon } from 'lucide-react';
-import { LayoutDashboard, Stethoscope, CloudSun, BarChart3, Sprout, Tractor, Globe, Handshake, Users, FlaskConical, ClipboardCheck } from 'lucide-react';
+import { Home, LayoutDashboard, Stethoscope, CloudSun, BarChart3, Sprout, Tractor, Globe, Handshake, Users, FlaskConical, ClipboardCheck } from 'lucide-react';
 import { type Timestamp } from 'firebase/firestore';
 
 export type NavItem = {
@@ -12,6 +13,11 @@ export type NavItem = {
 export const NAV_ITEMS: NavItem[] = [
   {
     href: '/',
+    label: 'Home',
+    icon: Home,
+  },
+  {
+    href: '/dashboard',
     label: 'Dashboard',
     icon: LayoutDashboard,
   },
@@ -25,7 +31,7 @@ export const NAV_ITEMS: NavItem[] = [
     label: 'Soil Analysis',
     icon: FlaskConical,
   },
-   {
+  {
     href: '/soil-testing',
     label: 'Book Soil Testing',
     icon: ClipboardCheck,
@@ -50,7 +56,7 @@ export const NAV_ITEMS: NavItem[] = [
     label: 'Equipment Rental',
     icon: Tractor,
   },
-   {
+  {
     href: '/export-program',
     label: 'Export Program',
     icon: Globe,
@@ -71,15 +77,15 @@ export const APP_NAME = "GrowKrishi";
 export const APP_ICON = Sprout;
 
 export enum LandArea {
-    LESS_THAN_5 = 'LESS_THAN_5',
-    BETWEEN_5_AND_10 = 'BETWEEN_5_AND_10',
-    MORE_THAN_10 = 'MORE_THAN_10',
+  LESS_THAN_5 = 'LESS_THAN_5',
+  BETWEEN_5_AND_10 = 'BETWEEN_5_AND_10',
+  MORE_THAN_10 = 'MORE_THAN_10',
 }
 
 export const LAND_AREA_OPTIONS = [
-    { value: LandArea.LESS_THAN_5, label: "< 5 Hectares" },
-    { value: LandArea.BETWEEN_5_AND_10, label: "> 5 Hectares" },
-    { value: LandArea.MORE_THAN_10, label: "> 10 Hectares" },
+  { value: LandArea.LESS_THAN_5, label: "< 5 Hectares" },
+  { value: LandArea.BETWEEN_5_AND_10, label: "5 - 10 Hectares" },
+  { value: LandArea.MORE_THAN_10, label: "> 10 Hectares" },
 ];
 
 export type UserProfile = {
